@@ -5,63 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynxo Language Learning</title>
 <style>
-:root{ --gold:#f5c518; --gold-dim:#b8912a; --bg:#000; --card:#161616; --card2:#1f1f1f; --text:#fff; --dim:#bdbdbd; --good:#37d67a; --bad:#ff5a5a; }
+:root{ --eel:#3c3c3c; --dim:#777; --line:#e5e5e5; --green:#58cc02; --green-d:#46a302; --blue:#1cb0f6; --blue-d:#1899d6; --red:#ff4b4b; --red-d:#d33131; --gold:#f5c518; }
 *{ box-sizing:border-box; }
-html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:Roboto,Arial,sans-serif; }
+html,body{ margin:0; padding:0; background:#fff; color:var(--eel); font-family:Roboto,Arial,sans-serif; }
 button{ font-family:inherit; }
-:focus{ outline:3px solid var(--gold); outline-offset:2px; }
-#lynxo-language-app{ max-width:860px; margin:0 auto; padding:0 12px 90px 12px; }
-header.top{ display:flex; align-items:center; gap:8px; padding:12px 2px 8px 2px; position:sticky; top:0; background:var(--bg); z-index:20; }
-header.top h1{ font-size:20px; color:var(--gold); margin:0; flex:1; line-height:1.15; }
-.iconbtn{ background:var(--card2); color:var(--gold); border:2px solid var(--gold-dim); border-radius:12px; font-size:15px; padding:10px 12px; cursor:pointer; min-height:48px; }
-.langbtn{ background:var(--card2); color:#fff; border:2px solid var(--gold); border-radius:12px; font-size:16px; padding:10px 14px; cursor:pointer; min-height:48px; font-weight:bold; }
-.strip{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px 0; }
-.chip{ background:var(--card); border:1px solid #333; border-radius:999px; padding:8px 12px; font-size:15px; color:var(--text); }
-.chip b{ color:var(--gold); }
-.card{ background:var(--card); border:1px solid #2c2c2c; border-radius:16px; padding:16px; margin:0 0 14px 0; }
-.card h2{ color:var(--gold); margin:0 0 8px 0; font-size:19px; }
-.card h3{ color:var(--gold); margin:0 0 6px 0; font-size:17px; }
+:focus{ outline:3px solid var(--blue); outline-offset:2px; }
+#lynxo-language-app{ max-width:860px; margin:0 auto; padding:0 12px 110px 12px; }
+header.top{ display:flex; align-items:center; gap:8px; padding:12px 2px 8px 2px; position:sticky; top:0; background:#fff; z-index:20; border-bottom:2px solid var(--line); }
+header.top h1{ font-size:19px; color:var(--eel); margin:0; flex:1; line-height:1.15; font-weight:800; }
+.iconbtn{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:15px; font-weight:bold; padding:10px 12px; cursor:pointer; min-height:48px; }
+.langbtn{ background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:16px; padding:10px 14px; cursor:pointer; min-height:48px; font-weight:bold; }
+.strip{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 12px 0; }
+.chip{ background:#fff; border:2px solid var(--line); border-radius:999px; padding:8px 12px; font-size:15px; font-weight:bold; color:var(--eel); }
+.chip .flame{ color:#ff9600; } .chip .star{ color:#ffc800; } .chip .gem{ color:var(--blue); }
+.card{ background:#fff; border:2px solid var(--line); border-radius:16px; padding:16px; margin:0 0 14px 0; }
+.card h2{ color:var(--eel); margin:0 0 8px 0; font-size:20px; font-weight:800; }
+.card h3{ color:var(--eel); margin:0 0 6px 0; font-size:17px; font-weight:800; }
 .dim{ color:var(--dim); }
-.btn{ display:block; width:100%; background:var(--gold); color:#000; border:none; border-radius:14px; font-size:18px; font-weight:bold; padding:16px; margin:8px 0; cursor:pointer; min-height:56px; }
-.btn.secondary{ background:var(--card2); color:var(--gold); border:2px solid var(--gold-dim); }
-.btn.good{ background:var(--good); }
-.btn.bad{ background:var(--bad); color:#000; }
+.btn{ display:block; width:100%; background:var(--green); color:#fff; border:none; border-bottom:5px solid var(--green-d); border-radius:14px; font-size:18px; font-weight:bold; padding:15px; margin:8px 0; cursor:pointer; min-height:56px; }
+.btn:active{ transform:translateY(2px); border-bottom-width:2px; }
+.btn.secondary{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:5px solid var(--line); }
+.btn.good{ background:var(--green); }
+.btn.bad{ background:var(--red); border-bottom-color:var(--red-d); color:#fff; }
 .btn:disabled{ opacity:.45; }
-.lessonbtn{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--card2); color:#fff; border:2px solid #333; border-radius:14px; padding:14px; margin:6px 0; cursor:pointer; font-size:17px; min-height:56px; }
-.lessonbtn.current{ border-color:var(--gold); }
-.lessonbtn.locked{ opacity:.45; }
-.lessonbtn .st{ margin-left:auto; color:var(--gold); font-size:15px; white-space:nowrap; }
-.unithead{ background:linear-gradient(90deg,#2a2103,#161616); border:1px solid var(--gold-dim); border-radius:14px; padding:12px 14px; margin:16px 0 6px 0; }
-.unithead h3{ margin:0; color:var(--gold); font-size:18px; }
-.unithead p{ margin:4px 0 0 0; color:var(--dim); font-size:14px; }
-nav.tabs{ position:fixed; left:0; right:0; bottom:0; background:#0a0a0a; border-top:2px solid var(--gold-dim); display:flex; z-index:30; }
-nav.tabs button{ flex:1; background:none; border:none; color:var(--dim); font-size:15px; padding:12px 2px 14px 2px; cursor:pointer; min-height:60px; }
-nav.tabs button.active{ color:var(--gold); font-weight:bold; }
-.progresswrap{ background:#222; border-radius:999px; height:18px; overflow:hidden; margin:10px 0; }
-.progressbar{ background:var(--gold); height:100%; width:0%; transition:width .3s; }
-.qword{ font-size:30px; font-weight:bold; text-align:center; margin:16px 0 4px 0; }
+.btn.qchoice.sel{ background:#ddf4ff; color:var(--blue-d); border-color:var(--blue); border-bottom-color:var(--blue-d); }
+.lessonbtn{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:14px; margin:6px 0; cursor:pointer; font-size:17px; font-weight:bold; min-height:56px; }
+.lessonbtn .st{ margin-left:auto; color:var(--dim); font-size:15px; white-space:nowrap; }
+.unithead{ border-radius:16px; padding:14px 16px; margin:18px 0 10px 0; color:#fff; }
+.unithead h3{ margin:0; font-size:19px; font-weight:800; color:#fff; }
+.unithead p{ margin:4px 0 0 0; font-size:14px; color:#fff; opacity:.92; }
+.pathwrap{ display:flex; flex-direction:column; align-items:center; padding:6px 0 2px 0; }
+.pnode{ width:76px; height:70px; border-radius:50%; border:none; border-bottom:7px solid rgba(0,0,0,.25); color:#fff; font-size:30px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; }
+.pnode:active{ transform:translateY(3px); border-bottom-width:3px; }
+.pnode.locked{ background:#e5e5e5 !important; border-bottom-color:#c9c9c9 !important; color:#afafaf; cursor:default; }
+.pnode .starttag{ position:absolute; top:-26px; left:50%; transform:translateX(-50%); background:#fff; color:inherit; border:2px solid var(--line); border-radius:10px; font-size:13px; font-weight:800; padding:2px 8px; letter-spacing:.5px; }
+.pnode-label{ text-align:center; font-weight:bold; font-size:15px; margin-top:6px; color:var(--eel); }
+.pnode-label .sub{ display:block; font-weight:normal; color:var(--dim); font-size:13px; }
+.pulse{ animation:pulse 1.6s infinite; }
+@keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(28,176,246,.45);} 70%{ box-shadow:0 0 0 14px rgba(28,176,246,0);} 100%{ box-shadow:0 0 0 0 rgba(28,176,246,0);} }
+nav.tabs{ position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:2px solid var(--line); display:flex; z-index:30; }
+nav.tabs button{ flex:1; background:none; border:none; color:#afafaf; font-size:15px; font-weight:bold; padding:12px 2px 14px 2px; cursor:pointer; min-height:60px; }
+nav.tabs button.active{ color:var(--blue); }
+.progresswrap{ background:var(--line); border-radius:999px; height:16px; overflow:hidden; margin:10px 0; }
+.progressbar{ background:linear-gradient(180deg,#7ee000,var(--green)); height:100%; width:0%; transition:width .3s; border-radius:999px; }
+.qword{ font-size:32px; font-weight:800; text-align:center; margin:16px 0 4px 0; color:var(--eel); }
 .qrom{ font-size:18px; color:var(--dim); text-align:center; margin:0 0 8px 0; }
-.qprompt{ font-size:18px; text-align:center; color:var(--text); margin:8px 0; }
-.feedback{ border-radius:14px; padding:14px; margin:12px 0; font-size:17px; display:none; }
-.feedback.good{ background:#0d2b1a; border:2px solid var(--good); display:block; }
-.feedback.bad{ background:#2b0d0d; border:2px solid var(--bad); display:block; }
-.wordrow{ display:flex; align-items:center; gap:10px; background:var(--card2); border:1px solid #333; border-radius:12px; padding:12px; margin:6px 0; }
+.qprompt{ font-size:19px; font-weight:bold; text-align:left; color:var(--eel); margin:10px 0; }
+.sheet{ display:none; position:fixed; left:0; right:0; bottom:60px; z-index:40; padding:16px 14px 12px 14px; }
+.sheet.good{ display:block; background:#d7ffb8; color:#3d8b00; }
+.sheet.bad{ display:block; background:#ffdfe0; color:#c81e1e; }
+.sheet .fbtitle{ font-size:20px; font-weight:800; margin:0 0 4px 0; }
+.sheet .fbtext{ font-size:16px; margin:0 0 8px 0; }
+.sheet .btn{ margin:4px 0 2px 0; }
+.sheet.good .btn{ background:var(--green); border-bottom-color:var(--green-d); }
+.sheet.bad .btn{ background:var(--red); border-bottom-color:var(--red-d); }
+.wordrow{ display:flex; align-items:center; gap:10px; background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; padding:12px; margin:6px 0; }
 .wordrow .w{ flex:1; }
 .wordrow .t{ font-size:19px; font-weight:bold; }
 .wordrow .e{ color:var(--dim); font-size:15px; }
-.mini{ background:#000; color:var(--gold); border:2px solid var(--gold-dim); border-radius:10px; padding:10px 12px; font-size:15px; cursor:pointer; min-height:48px; }
-.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
-.catchip{ background:var(--card2); color:#fff; border:2px solid #333; border-radius:999px; padding:10px 14px; font-size:16px; cursor:pointer; min-height:48px; }
-.catchip.active{ border-color:var(--gold); color:var(--gold); }
-input[type=text],input[type=password],textarea{ width:100%; background:#0d0d0d; color:#fff; border:2px solid #444; border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
-select{ width:100%; background:#0d0d0d; color:#fff; border:2px solid #444; border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
-.badge{ display:inline-block; background:var(--card2); border:1px solid var(--gold-dim); color:var(--gold); border-radius:12px; padding:8px 10px; margin:4px 4px 4px 0; font-size:14px; }
-.badge.off{ color:#666; border-color:#333; }
+.mini{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:10px; padding:10px 12px; font-size:15px; font-weight:bold; cursor:pointer; min-height:48px; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; justify-content:center; }
+.catchip{ background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:12px 16px; font-size:17px; font-weight:bold; cursor:pointer; min-height:52px; }
+.catchip.active{ border-color:var(--blue); color:var(--blue); }
+.catchip.tile{ font-size:26px; min-width:58px; min-height:66px; padding:10px 8px; }
+.builtline{ min-height:44px; border:2px dashed var(--line); border-radius:12px; padding:10px; font-size:24px; font-weight:800; text-align:center; letter-spacing:2px; margin:8px 0; }
+input[type=text],input[type=password],textarea{ width:100%; background:#f7f7f7; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+select{ width:100%; background:#f7f7f7; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+.badge{ display:inline-block; background:#fff8d6; border:2px solid #ffc800; color:#7a5b00; border-radius:12px; padding:8px 10px; margin:4px 4px 4px 0; font-size:14px; font-weight:bold; }
+.badge.off{ color:#afafaf; border-color:var(--line); background:#fff; }
 .view{ display:none; }
 .view.active{ display:block; }
 .big{ font-size:22px; }
 .center{ text-align:center; }
-a{ color:var(--gold); }
+a{ color:var(--blue); }
+.mascot{ font-size:52px; line-height:1; }
+.greetcard{ display:flex; gap:12px; align-items:center; }
+.confetti{ position:fixed; top:-12px; width:10px; height:16px; z-index:50; border-radius:3px; animation:fall linear forwards; pointer-events:none; }
+@keyframes fall{ to{ transform:translateY(105vh) rotate(720deg); } }
 </style>
 </head>
 <body>
@@ -93,8 +113,8 @@ a{ color:var(--gold); }
 
 <script>
 "use strict";
-var APP_VERSION_NAME = "1.0.1";
-var APP_VERSION_CODE = 2;
+var APP_VERSION_NAME = "1.1.0";
+var APP_VERSION_CODE = 3;
 var REPO = "justinyocum4-code/Lynxo-Language";
 var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
 var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
@@ -213,7 +233,7 @@ window.__onStt = function(text, ok){ if(_sttCb){ var c = _sttCb; _sttCb = null; 
 var DEF_STATE = {
   lang: "es", xp: 0, lessonsDone: {}, stars: {}, mistakes: [], favs: [],
   srs: {}, badges: [], goalMin: 5, todayXp: 0, todayDate: "",
-  streak: 0, lastDay: "", wotd: {}, settings: { rate: 1, reminder: false },
+  streak: 0, lastDay: "", wotd: {}, settings: { rate: 0.85, reminder: false },
   groqKey: "", placement: {}, updatedAt: 0
 };
 var state = loadState();
@@ -351,35 +371,104 @@ function lessonList(){
   });
   return out;
 }
+function catOf(catIdx){ return CATS[catIdx] || CATS[0]; }
+function timeGreeting(){
+  var h = new Date().getHours();
+  if(h < 12) return "Good morning";
+  if(h < 18) return "Good afternoon";
+  return "Good evening";
+}
+var LYNX_TIPS = [
+  "Short lessons every day beat one long session.",
+  "Say every word out loud. Your ears learn first.",
+  "Mistakes are not failures here. They are the lesson.",
+  "Use the slow button whenever you want. There is no rush.",
+  "Words you miss come back in Mistakes review until they stick."
+];
 function renderLearn(){
   rollDay();
   var w = wordOfDay();
   var lessons = lessonList();
   var doneCount = lessons.filter(function(l){ return state.lessonsDone[l.id]; }).length;
+  var tip = LYNX_TIPS[new Date().getDate() % LYNX_TIPS.length];
   var html = "";
-  html += "<div class='strip'><span class='chip'>Streak <b>" + state.streak + "</b></span><span class='chip'>XP <b>" + state.xp + "</b></span><span class='chip'>Level <b>" + level() + "</b></span><span class='chip'>Today <b>" + state.todayXp + " XP</b></span></div>";
-  if(w) html += "<div class='card'><h2>Word of the day</h2><p class='big'>" + esc(w.t) + (w.r ? " <span class='dim'>(" + esc(w.r) + ")</span>" : "") + "</p><p class='dim'>" + esc(w.e) + "</p><button class='btn secondary' id='wotdBtn'>Hear it</button></div>";
-  html += "<div class='card'><h2>" + esc(curLang().name) + " path</h2><p class='dim'>" + doneCount + " of " + lessons.length + " lessons done. Lessons unlock in order, like Duolingo — but nothing ever locks you out for mistakes.</p>";
+  html += "<div class='strip'><span class='chip'><span class='flame'>&#128293;</span> " + state.streak + "</span><span class='chip'><span class='star'>&#11088;</span> " + state.xp + " XP</span><span class='chip'><span class='gem'>&#128142;</span> Level " + level() + "</span><span class='chip'>Today " + state.todayXp + " XP</span></div>";
+  html += "<div class='card'><div class='greetcard'><div class='mascot' aria-hidden='true'>&#128006;</div><div><h2 style='margin:0'>" + timeGreeting() + "!</h2><p class='dim' style='margin:4px 0 0 0'>Lynxo the lynx says: " + esc(tip) + "</p></div></div></div>";
+  if(w) html += "<div class='card' style='border-color:#ffc800'><h2>&#128172; Word of the day</h2><p class='big'>" + esc(w.t) + (w.r ? " <span class='dim'>(" + esc(w.r) + ")</span>" : "") + "</p><p class='dim'>" + esc(w.e) + "</p><button class='btn secondary' id='wotdBtn'>Hear it</button></div>";
+  html += "<div class='card'><h2>" + esc(curLang().name) + " path</h2><p class='dim'>" + doneCount + " of " + lessons.length + " lessons done. Follow the trail — lessons unlock in order, and mistakes never lock you out.</p>";
   if(!state.placement[state.lang]) html += "<button class='btn secondary' id='placeBtn'>Take the placement test</button>";
   html += "</div>";
   var curCat = -1;
-  lessons.forEach(function(l){
-    if(l.catIdx !== curCat){ curCat = l.catIdx; var c = CATS[curCat]; html += "<div class='unithead'><h3>Unit: " + esc(c.title) + "</h3><p>" + esc(c.blurb) + "</p></div>"; }
+  var firstPendingFound = false;
+  lessons.forEach(function(l, li){
+    if(l.catIdx !== curCat){
+      curCat = l.catIdx; var c = catOf(curCat);
+      if(li > 0) html += "</div>";
+      html += "<div class='unithead' style='background:" + c.color + "'><h3>" + c.emoji + " Unit: " + esc(c.title) + "</h3><p>" + esc(c.blurb) + "</p></div><div class='pathwrap'>";
+    }
     var done = !!state.lessonsDone[l.id];
     var unlocked = isUnlocked(l.catIdx, l.part);
     var stars = state.stars[l.id] || 0;
-    html += "<button class='lessonbtn" + (done ? "" : (unlocked ? " current" : " locked")) + "' data-lesson='" + l.id + "'" + (unlocked ? "" : " disabled") + "><span>" + (done ? "Done: " : "") + esc(l.title) + "</span><span class='st'>" + (done ? stars + " stars" : (unlocked ? "Start" : "Locked")) + "</span></button>";
+    var isCurrent = unlocked && !done && !firstPendingFound;
+    if(isCurrent) firstPendingFound = true;
+    var cc = catOf(l.catIdx);
+    var offs = [0, 52, 88, 52, 0, -52, -88, -52];
+    var off = offs[li % offs.length];
+    var face = done ? "&#11088;" : (unlocked ? "&#9654;" : "&#128274;");
+    var label = done ? ("Done &bull; " + stars + " star" + (stars === 1 ? "" : "s")) : (unlocked ? "Start" : "Locked");
+    var al = (done ? "Completed lesson: " : (unlocked ? "Start lesson: " : "Locked lesson: ")) + l.title + (done ? (", " + stars + " stars") : "");
+    html += "<div style='margin-left:" + off + "px; margin-top:" + (isCurrent ? "30" : "12") + "px'><button class='pnode" + (unlocked ? "" : " locked") + (isCurrent ? " pulse" : "") + "' style='background:" + cc.color + ";border-bottom-color:" + cc.dark + "' data-lesson='" + l.id + "'" + (unlocked ? "" : " disabled") + " aria-label='" + esc(al) + "'>" + (isCurrent ? "<span class='starttag' style='color:" + cc.color + "'>START</span>" : "") + face + "</button><div class='pnode-label'>" + esc(l.title) + "<span class='sub'>" + label + "</span></div></div>";
   });
+  if(lessons.length) html += "</div>";
   $("view-learn").innerHTML = html;
   if(w) $("wotdBtn").addEventListener("click", function(){ speakLang(w.t, curLang().tts, 0.85); setTimeout(function(){ say(w.e); }, 1600); });
   var pb = $("placeBtn"); if(pb) pb.addEventListener("click", startPlacement);
   Array.prototype.forEach.call($("view-learn").querySelectorAll("[data-lesson]"), function(b){
     b.addEventListener("click", function(){
+      sndTap();
       var id = b.getAttribute("data-lesson");
       var l = lessonList().filter(function(x){ return x.id === id; })[0];
       if(l) startLesson(l);
     });
   });
+}
+
+/* ---------------- Sounds and mascot ---------------- */
+var _ac = null;
+function tone(freq, t0, dur, type, vol){
+  try {
+    if(!_ac){ var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return; _ac = new AC(); }
+    if(_ac.state === "suspended") _ac.resume();
+    var t = _ac.currentTime + t0;
+    var o = _ac.createOscillator(), g = _ac.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(_ac.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch(e){}
+}
+function sndGood(){ tone(659.25, 0, 0.12); tone(987.77, 0.09, 0.22); }
+function sndBad(){ tone(196, 0, 0.2, "triangle", 0.1); }
+function sndFanfare(){ [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tone(f, i * 0.11, 0.24); }); }
+function sndTap(){ tone(520, 0, 0.05, "square", 0.04); }
+var PRAISE = ["Great job!", "Exactly right!", "Nailed it!", "Lynxo is proud of you!", "You are getting good at this!"];
+var ENCOURAGE = ["Good try.", "Almost there.", "Mistakes are how you learn.", "Keep going — you have got this."];
+function confettiBurst(){
+  try {
+    var colors = ["#58cc02", "#1cb0f6", "#ffc800", "#ff5da2", "#a259e6", "#ff9600"];
+    for(var i = 0; i < 36; i++){
+      var d = document.createElement("div");
+      d.className = "confetti"; d.setAttribute("aria-hidden", "true");
+      d.style.left = (Math.random() * 100) + "vw";
+      d.style.background = colors[i % colors.length];
+      d.style.animationDuration = (1.4 + Math.random() * 1.4) + "s";
+      d.style.animationDelay = (Math.random() * 0.35) + "s";
+      document.body.appendChild(d);
+      (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 3600); })(d);
+    }
+  } catch(e){}
 }
 
 /* ---------------- Lesson engine ---------------- */
@@ -392,11 +481,63 @@ function buildQuestions(lesson){
   items.forEach(function(it, n){
     var pool = catItems.map(function(x, xi){ return { t: x[0], e: x[1], r: x[2] || "", idx: xi }; }).filter(function(x){ return x.idx !== it.idx; });
     var typeCycle = ["listen", "chooseTarget", "chooseEnglish", "repeat", "build"];
-    var type = (lesson.cat === "phrases") ? typeCycle[n % typeCycle.length] : ["listen", "chooseTarget", "chooseEnglish", "repeat"][n % 4];
+    var type;
+    if(lesson.cat === "phrases") type = typeCycle[n % typeCycle.length];
+    else if(lesson.part === 2 && spellable(it) && spellChars(it).length >= 3 && n % 3 === 2) type = "spellpick";
+    else { type = ["listen", "chooseTarget", "chooseEnglish", "repeat", "spellbuild"][n % 5]; if(type === "spellbuild" && !spellable(it)) type = "repeat"; }
     if(type === "build" && it.t.split(/\s+/).length < 2) type = "chooseTarget";
     qs.push({ type: type, item: it, distract: shuffle(pool).slice(0, 3) });
   });
   return shuffle(qs);
+}
+/* ---------------- Spelling ---------------- */
+function spellChars(item){
+  return Array.from(String(item.t).replace(/[?.!,\u00bf\u00a1\u2026]/g, "").trim()).filter(function(c){ return c !== " "; });
+}
+function spellable(item){
+  if(String(item.t).indexOf(" ") >= 0) return false;
+  var n = spellChars(item).length;
+  return n >= 2 && n <= 10;
+}
+function spellWordSpeak(item){
+  speakLang(item.t, curLang().tts, 0.85);
+  spellChars(item).forEach(function(c){ speakLang(c, curLang().tts, 0.6, true); });
+  setTimeout(function(){ say("That spells: " + item.e + "."); }, 900 + spellChars(item).length * 750);
+}
+function spellMutant(item){
+  var ch = spellChars(item);
+  if(ch.length < 3) return null;
+  var mode = Math.floor(Math.random() * 3);
+  var m = ch.slice();
+  if(mode === 0){ var i = Math.floor(Math.random() * (m.length - 1)); var t = m[i]; m[i] = m[i + 1]; m[i + 1] = t; }
+  else if(mode === 1){ m.splice(Math.floor(Math.random() * m.length), 1); }
+  else { var j = Math.floor(Math.random() * m.length); m.splice(j, 0, m[j]); }
+  var out = m.join("");
+  return out === ch.join("") ? null : out;
+}
+function startSpelling(catId){
+  var pool = [];
+  var cats = langData().cats || {};
+  var useCats = catId ? [catId] : CATS.map(function(c){ return c.id; }).filter(function(cid){
+    return lessonList().some(function(l){ return l.cat === cid && state.lessonsDone[l.id]; });
+  });
+  if(!useCats.length) useCats = ["greet"];
+  useCats.forEach(function(cid){
+    (cats[cid] || []).forEach(function(x, xi){
+      var it = { cat: cid, idx: xi, t: x[0], e: x[1], r: x[2] || "" };
+      if(spellable(it)) pool.push(it);
+    });
+  });
+  pool = shuffle(pool).slice(0, 6);
+  if(!pool.length){ say("No spelling words available yet. Finish a lesson first."); return; }
+  var qs = pool.map(function(it, n){
+    var catItems = (cats[it.cat] || []).map(function(x, xi){ return { t: x[0], e: x[1], r: x[2] || "", idx: xi }; });
+    return { type: (n % 2 === 0) ? "spellbuild" : "spellpick", item: it, distract: shuffle(catItems.filter(function(x){ return x.idx !== it.idx; })).slice(0, 3) };
+  });
+  LSN = { lesson: { id: "spelling", title: "Spelling practice", cat: pool[0].cat }, qs: qs, i: 0, correct: 0, mode: "spelling", answered: false };
+  show("lesson");
+  say("Spelling practice. " + qs.length + " words. Listen carefully, then build each word from its letters.");
+  renderQuestion();
 }
 function startLesson(lesson){
   LSN = { lesson: lesson, qs: buildQuestions(lesson), i: 0, correct: 0, mode: "lesson", answered: false };
@@ -446,6 +587,30 @@ function renderQuestion(){
     html += "<p class='qprompt'>Listen, then pick the English meaning.</p><button class='btn' id='qPlay'>Play the word</button>";
     choices = shuffle([q.item].concat(q.distract));
     html += choices.map(function(c, ci){ return "<button class='btn secondary qchoice' data-ci='" + ci + "' data-ok='" + (c.e === q.item.e ? "1" : "0") + "'>" + esc(c.e) + "</button>"; }).join("");
+  } else if(q.type === "spellbuild"){
+    var sch = spellChars(q.item);
+    var extraPool = [];
+    q.distract.forEach(function(d){ spellChars(d).forEach(function(c){ if(sch.indexOf(c) < 0 && extraPool.indexOf(c) < 0) extraPool.push(c); }); });
+    var tiles = shuffle(sch.concat(shuffle(extraPool).slice(0, 2)));
+    html += "<p class='qprompt'>Spell the word you hear. Tap the letters in order.</p>" +
+      "<button class='btn' id='qPlay'>Hear the word</button>" +
+      "<button class='btn secondary' id='qSpellHear'>Hear it spelled out</button>" +
+      "<p class='dim center'>In English: " + esc(q.item.e) + "</p>" +
+      "<div class='builtline' id='qBuilt'>&nbsp;</div><div class='chips' id='qChips'>" +
+      tiles.map(function(w, wi){ return "<button class='catchip tile' data-w='" + esc(w) + "' data-wi='" + wi + "' aria-label='Letter " + esc(w) + "'>" + esc(w) + "</button>"; }).join("") + "</div>" +
+      "<button class='btn secondary' id='qUndo'>Undo last letter</button>" +
+      "<button class='btn' id='qCheck'>Check</button>";
+    LSN.built = [];
+  } else if(q.type === "spellpick"){
+    html += "<p class='qprompt'>Which is the right spelling?</p>" +
+      "<button class='btn' id='qPlay'>Hear the word</button>" +
+      "<p class='dim center'>The word means: " + esc(q.item.e) + "</p>";
+    var m1 = spellMutant(q.item), m2 = spellMutant(q.item), guard = 0;
+    while((!m1 || !m2 || m1 === m2) && guard++ < 8){ if(!m1) m1 = spellMutant(q.item); else m2 = spellMutant(q.item); }
+    var opts = [{ t: q.item.t, ok: 1 }];
+    if(m1) opts.push({ t: m1, ok: 0 });
+    if(m2) opts.push({ t: m2, ok: 0 });
+    html += shuffle(opts).map(function(c, ci){ return "<button class='btn secondary qchoice' data-ci='" + ci + "' data-ok='" + c.ok + "'>" + esc(c.t) + "</button>"; }).join("");
   } else if(q.type === "chooseTarget"){
     html += "<p class='qprompt'>How do you say this?</p><p class='qword'>" + esc(q.item.e) + "</p>";
     choices = shuffle([q.item].concat(q.distract));
@@ -472,15 +637,24 @@ function renderQuestion(){
       "<button class='btn' id='qCheck'>Check</button>";
     LSN.built = [];
   }
-  html += "<div class='feedback' id='qFb' role='alert'></div><button class='btn' id='qNext' style='display:none'>Continue</button>";
+  html += "<div class='sheet' id='qSheet'><p class='fbtitle' id='qFbTitle'></p><p class='fbtext' id='qFb' role='alert'></p><button class='btn' id='qNext' style='display:none'>Continue</button></div>";
   v.innerHTML = html;
   $("qQuit").addEventListener("click", function(){ LSN = null; show("learn"); say("Lesson stopped."); });
-  var play = $("qPlay"); if(play) play.addEventListener("click", function(){ speakLang(q.item.t, curLang().tts, 1); });
+  var play = $("qPlay"); if(play) play.addEventListener("click", function(){ speakLang(q.item.t, curLang().tts, state.settings.rate || 1); });
   var slow = $("qSlow"); if(slow) slow.addEventListener("click", function(){ speakLang(q.item.t, curLang().tts, 0.55); });
-  if(q.type === "listen") setTimeout(function(){ speakLang(q.item.t, curLang().tts, 1); }, 350);
+  var spellHear = $("qSpellHear"); if(spellHear) spellHear.addEventListener("click", function(){ spellWordSpeak(q.item); });
+  if(q.type === "listen"){
+    var qi = LSN.i, base = state.settings.rate || 1;
+    setTimeout(function(){ if(LSN && LSN.i === qi && !LSN.answered) speakLang(q.item.t, curLang().tts, Math.max(0.4, base * 0.7)); }, 350);
+    setTimeout(function(){ if(LSN && LSN.i === qi && !LSN.answered) speakLang(q.item.t, curLang().tts, base); }, 2600);
+  }
+  if(q.type === "spellbuild") setTimeout(function(){ if(LSN && !LSN.answered) speakLang(q.item.t, curLang().tts, Math.max(0.4, (state.settings.rate || 1) * 0.8)); }, 350);
+  if(q.type === "spellpick") setTimeout(function(){ if(LSN && !LSN.answered) speakLang(q.item.t, curLang().tts, state.settings.rate || 1); }, 350);
   Array.prototype.forEach.call(v.querySelectorAll(".qchoice"), function(b){
     b.addEventListener("click", function(){
       if(LSN.answered) return;
+      Array.prototype.forEach.call(v.querySelectorAll(".qchoice"), function(x){ x.classList.remove("sel"); });
+      b.classList.add("sel");
       var ok = b.getAttribute("data-ok") === "1";
       gradeAnswer(ok, q, b.textContent);
     });
@@ -497,45 +671,54 @@ function renderQuestion(){
       gradeAnswer(good, q, text);
     });
   });
-  if(q.type === "build"){
+  if(q.type === "build" || q.type === "spellbuild"){
     Array.prototype.forEach.call(v.querySelectorAll("#qChips .catchip"), function(ch){
       ch.addEventListener("click", function(){
         if(LSN.answered || ch.disabled) return;
-        LSN.built.push(ch.getAttribute("data-w")); ch.disabled = true; ch.style.opacity = ".35";
-        $("qBuilt").textContent = LSN.built.join(" ");
+        var w = ch.getAttribute("data-w");
+        LSN.built.push(w); ch.disabled = true; ch.style.opacity = ".35";
+        $("qBuilt").textContent = LSN.built.join(q.type === "spellbuild" ? "" : " ");
+        if(q.type === "spellbuild") speakLang(w, curLang().tts, 0.7);
+        else sndTap();
       });
     });
     $("qUndo").addEventListener("click", function(){
       if(LSN.answered || !LSN.built.length) return;
       var w = LSN.built.pop();
-      $("qBuilt").textContent = LSN.built.join(" ");
+      $("qBuilt").textContent = LSN.built.join(q.type === "spellbuild" ? "" : " ");
       Array.prototype.forEach.call(v.querySelectorAll("#qChips .catchip"), function(ch){ if(ch.disabled && ch.getAttribute("data-w") === w){ ch.disabled = false; ch.style.opacity = "1"; } });
     });
     $("qCheck").addEventListener("click", function(){
       if(LSN.answered) return;
-      var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, " ").trim(); };
-      gradeAnswer(norm(LSN.built.join(" ")) === norm(q.item.t), q, LSN.built.join(" "));
+      var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, "").trim(); };
+      gradeAnswer(norm(LSN.built.join("")) === norm(q.item.t), q, LSN.built.join(""));
     });
   }
   $("qNext").addEventListener("click", nextQuestion);
 }
 function gradeAnswer(ok, q, given){
   LSN.answered = true;
-  var fb = $("qFb");
+  var fb = $("qFb"), title = $("qFbTitle"), sheet = $("qSheet");
   var key = itemKey(q.item.cat, q.item.idx);
   bumpSrs(key, ok);
   if(ok){
     LSN.correct++;
     var mi = state.mistakes.indexOf(key); if(mi >= 0) state.mistakes.splice(mi, 1);
-    fb.className = "feedback good";
-    fb.innerHTML = "Correct. <b>" + esc(q.item.t) + "</b> means <b>" + esc(q.item.e) + "</b>.";
-    say("Correct.");
+    sndGood();
+    if(sheet) sheet.className = "sheet good";
+    if(title) title.innerHTML = "&#127881; " + pick(PRAISE);
+    fb.innerHTML = "<b>" + esc(q.item.t) + "</b> means <b>" + esc(q.item.e) + "</b>.";
+    say(pick(PRAISE));
     speakLang(q.item.t, curLang().tts, 0.9);
   } else {
     if(state.mistakes.indexOf(key) < 0) state.mistakes.push(key);
-    fb.className = "feedback bad";
-    fb.innerHTML = "Not quite. <b>" + esc(q.item.t) + "</b> means <b>" + esc(q.item.e) + "</b>. It is saved in your Mistakes review.";
-    say("Not quite. " + q.item.t + " means " + q.item.e + ".");
+    sndBad();
+    if(sheet) sheet.className = "sheet bad";
+    if(title) title.textContent = pick(ENCOURAGE);
+    fb.innerHTML = "The answer is <b>" + esc(q.item.t) + "</b> — <b>" + esc(q.item.e) + "</b>. It is saved in your Mistakes review.";
+    say(pick(ENCOURAGE) + " The answer is " + q.item.e + ".");
+    if(q.type === "spellbuild"){ var it = q.item; setTimeout(function(){ spellWordSpeak(it); }, 2200); }
+    else speakLang(q.item.t, curLang().tts, 0.8);
   }
   saveState();
   var nx = $("qNext"); if(nx){ nx.style.display = "block"; nx.focus(); }
@@ -571,13 +754,18 @@ function finishSession(){
     addXp(correct * 2);
   } else {
     addXp(correct * 2);
-    msg = "Review complete. " + correct + " of " + total + " right. Anything you missed stays in the list for next time.";
+    msg = (LSN.mode === "spelling" ? "Spelling practice complete. " : "Review complete. ") + correct + " of " + total + " right. Anything you missed stays in the list for next time.";
   }
   saveState();
+  sndFanfare();
+  if(LSN.mode === "lesson") confettiBurst();
   var v = $("view-lesson");
-  v.innerHTML = "<div class='card center'><h2>Session complete</h2><p class='big'>" + esc(msg) + "</p><p class='dim'>Total XP: " + state.xp + " &bull; Streak: " + state.streak + " days</p><button class='btn' id='finBtn'>Back to Learn</button></div>";
+  var spellBtn = (LSN.mode === "lesson") ? "<button class='btn secondary' id='finSpell'>Spelling round for this lesson</button>" : "";
+  var doneCat = LSN.lesson.cat, doneMode = LSN.mode;
+  v.innerHTML = "<div class='card center'><div class='mascot' aria-hidden='true'>&#128006;</div><h2>Session complete!</h2><p class='big'>" + esc(msg) + "</p><p class='dim'>Total XP: " + state.xp + " &bull; Streak: " + state.streak + " days</p>" + spellBtn + "<button class='btn' id='finBtn'>Back to Learn</button></div>";
   $("finBtn").addEventListener("click", function(){ LSN = null; show("learn"); });
-  say(msg);
+  var fs = $("finSpell"); if(fs) fs.addEventListener("click", function(){ startSpelling(doneCat); });
+  say(msg + (doneMode === "lesson" ? " There is a spelling round for this lesson when you are ready." : ""));
 }
 </script>
 <script>
@@ -646,6 +834,7 @@ function renderFlash(){
 function renderPractice(){
   var html = "<div class='card'><h2>Practice — " + esc(curLang().name) + "</h2><p class='dim'>Extra ways to practice, like Duolingo's practice hub.</p></div>";
   html += "<div class='card'><h3>Hands-free audio lesson</h3><p class='dim'>Audio only, made for walks. The app says a word in English, then in " + esc(curLang().name) + " twice — once slow, once normal. Screen can stay off.</p><button class='btn' id='pAudio'>Start audio lesson</button><button class='btn secondary' id='pAudioStop'>Stop audio</button></div>";
+  html += "<div class='card'><h3>&#9999;&#65038; Spelling practice</h3><p class='dim'>Learn to spell the words, not just hear them. The app spells each word out loud, then you build it from letter tiles that speak when you touch them.</p><button class='btn' id='pSpell'>Start spelling practice</button></div>";
   html += "<div class='card'><h3>Mistakes review</h3><p class='dim'>" + state.mistakes.length + " saved mistake" + (state.mistakes.length === 1 ? "" : "s") + " in " + esc(curLang().name) + ".</p><button class='btn' id='pMistakes'>Review mistakes</button></div>";
   html += "<div class='card'><h3>Stories and dialogues</h3><p class='dim'>Short spoken conversations built from your phrases, with questions after.</p><button class='btn' id='pStory'>Play a dialogue</button></div>";
   html += "<div class='card'><h3>Phrasebook</h3><p class='dim'>Everyday phrases with favorites. Your saved phrases come first.</p><button class='btn' id='pPhrases'>Open phrasebook</button></div>";
@@ -654,6 +843,7 @@ function renderPractice(){
   $("view-practice").innerHTML = html;
   $("pAudio").addEventListener("click", startAudioLesson);
   $("pAudioStop").addEventListener("click", stopAudioLesson);
+  $("pSpell").addEventListener("click", function(){ startSpelling(); });
   $("pMistakes").addEventListener("click", startMistakes);
   $("pStory").addEventListener("click", startDialogue);
   $("pPhrases").addEventListener("click", renderPhrasebook);
@@ -921,7 +1111,7 @@ function renderSettings(){
     "<label for='goalSel'>Daily goal</label><select id='goalSel'>" +
     [1, 5, 10, 15, 20].map(function(m){ return "<option value='" + m + "'" + (state.goalMin === m ? " selected" : "") + ">" + m + " minutes a day</option>"; }).join("") + "</select>" +
     "<label for='rateSel'>Speech speed for the language voices</label><select id='rateSel'>" +
-    [["0.7", "Slow"], ["1", "Normal"], ["1.15", "A little fast"]].map(function(r){ return "<option value='" + r[0] + "'" + (String(state.settings.rate) === r[0] ? " selected" : "") + ">" + r[1] + "</option>"; }).join("") + "</select>" +
+    [["0.7", "Slow"], ["0.85", "Beginner (a little slow)"], ["1", "Normal"], ["1.15", "A little fast"]].map(function(r){ return "<option value='" + r[0] + "'" + (String(state.settings.rate) === r[0] ? " selected" : "") + ">" + r[1] + "</option>"; }).join("") + "</select>" +
     "<label for='groqIn'>Groq key for AI chat (optional, stored only on this device)</label><input type='password' id='groqIn' value='" + esc(state.groqKey || "") + "' placeholder='Leave empty to keep AI chat locked'>" +
     "<button class='btn' id='saveSet'>Save settings</button></div>" +
     "<div class='card'><h2>Updates</h2><p class='dim'>Version " + APP_VERSION_NAME + " (build " + APP_VERSION_CODE + "). Check for a newer version and install it right here — no uninstalling, ever.</p>" +
@@ -978,14 +1168,14 @@ window.tvBack = function(){
 <script>
 "use strict";
 var CATS = [
-  { id: "greet", title: "Greetings", blurb: "Hello, goodbye, and being polite." },
-  { id: "nums", title: "Numbers", blurb: "Counting from one to ten." },
-  { id: "colors", title: "Colors", blurb: "Everyday colors." },
-  { id: "family", title: "People and Family", blurb: "Family members and people." },
-  { id: "food", title: "Food and Drink", blurb: "Things you eat and drink." },
-  { id: "phrases", title: "Everyday Phrases", blurb: "Full sentences you will actually use." },
-  { id: "travel", title: "Travel", blurb: "Getting around in a new place." },
-  { id: "time", title: "Time and Days", blurb: "Today, tomorrow, and parts of the day." }
+  { id: "greet", title: "Greetings", blurb: "Hello, goodbye, and being polite.", color: "#58cc02", dark: "#46a302", emoji: "👋" },
+  { id: "nums", title: "Numbers", blurb: "Counting from one to ten.", color: "#1cb0f6", dark: "#1899d6", emoji: "🔢" },
+  { id: "colors", title: "Colors", blurb: "Everyday colors.", color: "#a259e6", dark: "#8440d1", emoji: "🎨" },
+  { id: "family", title: "People and Family", blurb: "Family members and people.", color: "#ff5da2", dark: "#d63d84", emoji: "👨‍👩‍👧" },
+  { id: "food", title: "Food and Drink", blurb: "Things you eat and drink.", color: "#ff9600", dark: "#e08600", emoji: "🍔" },
+  { id: "phrases", title: "Everyday Phrases", blurb: "Full sentences you will actually use.", color: "#00c2a8", dark: "#00a38e", emoji: "💬" },
+  { id: "travel", title: "Travel", blurb: "Getting around in a new place.", color: "#ff4b4b", dark: "#d33131", emoji: "✈️" },
+  { id: "time", title: "Time and Days", blurb: "Today, tomorrow, and parts of the day.", color: "#ffc800", dark: "#e0a800", emoji: "🕐" }
 ];
 var LANGS = [
   { code: "es", name: "Spanish", native: "Español", tts: "es-ES" },
