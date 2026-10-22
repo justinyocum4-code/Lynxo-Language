@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lynxo Language Learning</title>
+<style>
+:root{ --gold:#f5c518; --gold-dim:#b8912a; --bg:#000; --card:#161616; --card2:#1f1f1f; --text:#fff; --dim:#bdbdbd; --good:#37d67a; --bad:#ff5a5a; }
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:Roboto,Arial,sans-serif; }
+button{ font-family:inherit; }
+:focus{ outline:3px solid var(--gold); outline-offset:2px; }
+#lynxo-language-app{ max-width:860px; margin:0 auto; padding:0 12px 90px 12px; }
+header.top{ display:flex; align-items:center; gap:8px; padding:12px 2px 8px 2px; position:sticky; top:0; background:var(--bg); z-index:20; }
+header.top h1{ font-size:20px; color:var(--gold); margin:0; flex:1; line-height:1.15; }
+.iconbtn{ background:var(--card2); color:var(--gold); border:2px solid var(--gold-dim); border-radius:12px; font-size:15px; padding:10px 12px; cursor:pointer; min-height:48px; }
+.langbtn{ background:var(--card2); color:#fff; border:2px solid var(--gold); border-radius:12px; font-size:16px; padding:10px 14px; cursor:pointer; min-height:48px; font-weight:bold; }
+.strip{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px 0; }
+.chip{ background:var(--card); border:1px solid #333; border-radius:999px; padding:8px 12px; font-size:15px; color:var(--text); }
+.chip b{ color:var(--gold); }
+.card{ background:var(--card); border:1px solid #2c2c2c; border-radius:16px; padding:16px; margin:0 0 14px 0; }
+.card h2{ color:var(--gold); margin:0 0 8px 0; font-size:19px; }
+.card h3{ color:var(--gold); margin:0 0 6px 0; font-size:17px; }
+.dim{ color:var(--dim); }
+.btn{ display:block; width:100%; background:var(--gold); color:#000; border:none; border-radius:14px; font-size:18px; font-weight:bold; padding:16px; margin:8px 0; cursor:pointer; min-height:56px; }
+.btn.secondary{ background:var(--card2); color:var(--gold); border:2px solid var(--gold-dim); }
+.btn.good{ background:var(--good); }
+.btn.bad{ background:var(--bad); color:#000; }
+.btn:disabled{ opacity:.45; }
+.lessonbtn{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--card2); color:#fff; border:2px solid #333; border-radius:14px; padding:14px; margin:6px 0; cursor:pointer; font-size:17px; min-height:56px; }
+.lessonbtn.current{ border-color:var(--gold); }
+.lessonbtn.locked{ opacity:.45; }
+.lessonbtn .st{ margin-left:auto; color:var(--gold); font-size:15px; white-space:nowrap; }
+.unithead{ background:linear-gradient(90deg,#2a2103,#161616); border:1px solid var(--gold-dim); border-radius:14px; padding:12px 14px; margin:16px 0 6px 0; }
+.unithead h3{ margin:0; color:var(--gold); font-size:18px; }
+.unithead p{ margin:4px 0 0 0; color:var(--dim); font-size:14px; }
+nav.tabs{ position:fixed; left:0; right:0; bottom:0; background:#0a0a0a; border-top:2px solid var(--gold-dim); display:flex; z-index:30; }
+nav.tabs button{ flex:1; background:none; border:none; color:var(--dim); font-size:15px; padding:12px 2px 14px 2px; cursor:pointer; min-height:60px; }
+nav.tabs button.active{ color:var(--gold); font-weight:bold; }
+.progresswrap{ background:#222; border-radius:999px; height:18px; overflow:hidden; margin:10px 0; }
+.progressbar{ background:var(--gold); height:100%; width:0%; transition:width .3s; }
+.qword{ font-size:30px; font-weight:bold; text-align:center; margin:16px 0 4px 0; }
+.qrom{ font-size:18px; color:var(--dim); text-align:center; margin:0 0 8px 0; }
+.qprompt{ font-size:18px; text-align:center; color:var(--text); margin:8px 0; }
+.feedback{ border-radius:14px; padding:14px; margin:12px 0; font-size:17px; display:none; }
+.feedback.good{ background:#0d2b1a; border:2px solid var(--good); display:block; }
+.feedback.bad{ background:#2b0d0d; border:2px solid var(--bad); display:block; }
+.wordrow{ display:flex; align-items:center; gap:10px; background:var(--card2); border:1px solid #333; border-radius:12px; padding:12px; margin:6px 0; }
+.wordrow .w{ flex:1; }
+.wordrow .t{ font-size:19px; font-weight:bold; }
+.wordrow .e{ color:var(--dim); font-size:15px; }
+.mini{ background:#000; color:var(--gold); border:2px solid var(--gold-dim); border-radius:10px; padding:10px 12px; font-size:15px; cursor:pointer; min-height:48px; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.catchip{ background:var(--card2); color:#fff; border:2px solid #333; border-radius:999px; padding:10px 14px; font-size:16px; cursor:pointer; min-height:48px; }
+.catchip.active{ border-color:var(--gold); color:var(--gold); }
+input[type=text],input[type=password],textarea{ width:100%; background:#0d0d0d; color:#fff; border:2px solid #444; border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+select{ width:100%; background:#0d0d0d; color:#fff; border:2px solid #444; border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+.badge{ display:inline-block; background:var(--card2); border:1px solid var(--gold-dim); color:var(--gold); border-radius:12px; padding:8px 10px; margin:4px 4px 4px 0; font-size:14px; }
+.badge.off{ color:#666; border-color:#333; }
+.view{ display:none; }
+.view.active{ display:block; }
+.big{ font-size:22px; }
+.center{ text-align:center; }
+a{ color:var(--gold); }
+</style>
+</head>
+<body>
+<div id="lynxo-language-app">
+  <header class="top">
+    <h1>Lynxo Language Learning</h1>
+    <button class="langbtn" id="langPickBtn" aria-label="Choose language">Spanish</button>
+    <button class="iconbtn" id="accountBtn" aria-label="Account">Account</button>
+    <button class="iconbtn" id="settingsBtn" aria-label="Settings">Settings</button>
+  </header>
+
+  <main id="mainArea">
+    <section class="view active" id="view-learn" aria-label="Learn"></section>
+    <section class="view" id="view-vocab" aria-label="Vocabulary"></section>
+    <section class="view" id="view-practice" aria-label="Practice"></section>
+    <section class="view" id="view-progress" aria-label="Progress"></section>
+    <section class="view" id="view-lesson" aria-label="Lesson"></section>
+    <section class="view" id="view-account" aria-label="Account"></section>
+    <section class="view" id="view-settings" aria-label="Settings"></section>
+  </main>
+
+  <nav class="tabs" aria-label="Main tabs">
+    <button id="tab-learn" class="active">Learn</button>
+    <button id="tab-vocab">Vocabulary</button>
+    <button id="tab-practice">Practice</button>
+    <button id="tab-progress">Progress</button>
+  </nav>
+</div>
+
+<script>
+"use strict";
+var APP_VERSION_NAME = "1.0.0";
+var APP_VERSION_CODE = 1;
+var REPO = "justinyocum4-code/Lynxo-Language";
+var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
+var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
+var REDIRECT = "com.lynxolanguage.app://auth-callback";
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function shuffle(a){ var x = a.slice(); for(var i = x.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = x[i]; x[i] = x[j]; x[j] = t; } return x; }
+function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+function todayStr(){ var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+
+/* ---------------- Speech ---------------- */
+function say(text){
+  try { if(window.LynxosTts && LynxosTts.speak) { LynxosTts.speak(String(text)); return; } } catch(e){}
+  try { var u = new SpeechSynthesisUtterance(String(text)); speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+}
+function speakLang(text, lang, rate, queue){
+  var r = rate || (state.settings.rate || 1);
+  try { if(window.LynxosTts && LynxosTts.speakAs) { LynxosTts.speakAs(String(text), lang || curLang().tts, r, !!queue); return; } } catch(e){}
+  try { var u = new SpeechSynthesisUtterance(String(text)); u.lang = lang || curLang().tts; u.rate = r; if(!queue) speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+}
+var _sttCb = null;
+function listenLang(lang, cb){
+  _sttCb = cb;
+  try { if(window.LynxosStt && LynxosStt.start) { LynxosStt.start(lang || curLang().tts); return; } } catch(e){}
+  try {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(SR){ var rec = new SR(); rec.lang = lang || curLang().tts; rec.interimResults = false;
+      rec.onresult = function(ev){ var t = ev.results[0][0].transcript || ""; if(_sttCb){ var c = _sttCb; _sttCb = null; c(t, true); } };
+      rec.onerror = function(){ if(_sttCb){ var c = _sttCb; _sttCb = null; c("", false); } };
+      rec.start(); return;
+    }
+  } catch(e){}
+  if(_sttCb){ var c2 = _sttCb; _sttCb = null; c2("", false); }
+}
+window.__onStt = function(text, ok){ if(_sttCb){ var c = _sttCb; _sttCb = null; c(text || "", !!ok); } };
+
+/* ---------------- State ---------------- */
+var DEF_STATE = {
+  lang: "es", xp: 0, lessonsDone: {}, stars: {}, mistakes: [], favs: [],
+  srs: {}, badges: [], goalMin: 5, todayXp: 0, todayDate: "",
+  streak: 0, lastDay: "", wotd: {}, settings: { rate: 1, reminder: false },
+  groqKey: "", placement: {}, updatedAt: 0
+};
+var state = loadState();
+function loadState(){
+  try { var raw = localStorage.getItem("ll_state_v1"); if(raw){ var s = JSON.parse(raw); var out = JSON.parse(JSON.stringify(DEF_STATE)); for(var k in s) out[k] = s[k]; if(!out.settings) out.settings = { rate: 1, reminder: false }; return out; } } catch(e){}
+  return JSON.parse(JSON.stringify(DEF_STATE));
+}
+var _syncTimer = null;
+function saveState(){
+  state.updatedAt = Date.now();
+  try { localStorage.setItem("ll_state_v1", JSON.stringify(state)); } catch(e){}
+  if(_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(function(){ cloudUpload(true); }, 4000);
+}
+function curLang(){ for(var i = 0; i < LANGS.length; i++) if(LANGS[i].code === state.lang) return LANGS[i]; return LANGS[0]; }
+function langData(){ return LANGDATA[state.lang] || {}; }
+function catList(){ return CATS; }
+function itemKey(cat, idx){ return state.lang + ":" + cat + ":" + idx; }
+function getItem(cat, idx){ var c = (langData().cats || {})[cat] || []; return c[idx] || null; }
+function allItems(){
+  var out = []; var cats = langData().cats || {};
+  CATS.forEach(function(c){ (cats[c.id] || []).forEach(function(it, i){ out.push({ cat: c.id, idx: i, t: it[0], e: it[1], r: it[2] || "" }); }); });
+  return out;
+}
+function rollDay(){
+  var t = todayStr();
+  if(state.todayDate !== t){
+    if(state.lastDay){
+      var y = new Date(); y.setDate(y.getDate() - 1);
+      var ys = y.getFullYear() + "-" + ("0" + (y.getMonth() + 1)).slice(-2) + "-" + ("0" + y.getDate()).slice(-2);
+      if(state.lastDay !== ys && state.lastDay !== t) state.streak = 0;
+    }
+    state.todayDate = t; state.todayXp = 0;
+  }
+}
+function addXp(n){
+  rollDay();
+  state.xp += n; state.todayXp += n;
+  var t = todayStr();
+  if(state.lastDay !== t){
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    var ys = y.getFullYear() + "-" + ("0" + (y.getMonth() + 1)).slice(-2) + "-" + ("0" + y.getDate()).slice(-2);
+    state.streak = (state.lastDay === ys) ? state.streak + 1 : 1;
+    state.lastDay = t;
+  }
+  checkBadges();
+}
+function level(){ return Math.floor(state.xp / 100) + 1; }
+var BADGES = [
+  { id: "first", name: "First Steps", test: function(){ return Object.keys(state.lessonsDone).length >= 1; } },
+  { id: "xp100", name: "100 XP Club", test: function(){ return state.xp >= 100; } },
+  { id: "xp500", name: "500 XP Club", test: function(){ return state.xp >= 500; } },
+  { id: "streak3", name: "3 Day Streak", test: function(){ return state.streak >= 3; } },
+  { id: "streak7", name: "7 Day Streak", test: function(){ return state.streak >= 7; } },
+  { id: "poly", name: "Explorer", test: function(){ var s = {}; Object.keys(state.lessonsDone).forEach(function(k){ s[k.split(":")[0]] = 1; }); return Object.keys(s).length >= 2; } },
+  { id: "words50", name: "50 Words Reviewed", test: function(){ return Object.keys(state.srs).length >= 50; } }
+];
+function checkBadges(){
+  BADGES.forEach(function(b){ if(state.badges.indexOf(b.id) < 0 && b.test()){ state.badges.push(b.id); say("Badge earned: " + b.name); } });
+}
+function wordOfDay(){
+  var t = todayStr();
+  if(state.wotd.date === t && state.wotd.key) return state.wotd;
+  var items = allItems(); if(!items.length) return null;
+  var seed = 0; for(var i = 0; i < t.length; i++) seed += t.charCodeAt(i) * (i + 3);
+  var it = items[seed % items.length];
+  state.wotd = { date: t, key: it.cat + ":" + it.idx, t: it.t, e: it.e, r: it.r };
+  saveState();
+  return state.wotd;
+}
+</script>
+<script>
+"use strict";
+/* ---------------- Navigation ---------------- */
+var VIEWS = ["learn","vocab","practice","progress","lesson","account","settings"];
+function show(view){
+  VIEWS.forEach(function(v){ var el = $("view-" + v); if(el) el.classList.toggle("active", v === view); });
+  ["learn","vocab","practice","progress"].forEach(function(t){ var b = $("tab-" + t); if(b) b.classList.toggle("active", t === view); });
+  if(view === "learn") renderLearn();
+  if(view === "vocab") renderVocab();
+  if(view === "practice") renderPractice();
+  if(view === "progress") renderProgress();
+  if(view === "account") renderAccount();
+  if(view === "settings") renderSettings();
+  try { window.scrollTo(0, 0); } catch(e){}
+}
+$("tab-learn").addEventListener("click", function(){ show("learn"); say("Learn tab. " + curLang().name + "."); });
+$("tab-vocab").addEventListener("click", function(){ show("vocab"); say("Vocabulary tab."); });
+$("tab-practice").addEventListener("click", function(){ show("practice"); say("Practice tab."); });
+$("tab-progress").addEventListener("click", function(){ show("progress"); say("Progress tab."); });
+$("accountBtn").addEventListener("click", function(){ show("account"); });
+$("settingsBtn").addEventListener("click", function(){ show("settings"); });
+$("langPickBtn").addEventListener("click", openLangPicker);
+
+function openLangPicker(){
+  var html = "<button class='btn secondary' id='lpBack'>Back</button><div class='card'><h2>Choose a language</h2><p class='dim'>You can learn more than one and switch any time. Your progress in each language is saved separately.</p>";
+  LANGS.forEach(function(l){ html += "<button class='lessonbtn' data-lang='" + l.code + "'><span>" + esc(l.name) + "</span><span class='st'>" + esc(l.native) + (state.lang === l.code ? " &bull; current" : "") + "</span></button>"; });
+  html += "</div>";
+  var v = $("view-learn"); v.innerHTML = html;
+  VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "learn"); });
+  $("lpBack").addEventListener("click", function(){ show("learn"); });
+  Array.prototype.forEach.call(v.querySelectorAll("[data-lang]"), function(b){
+    b.addEventListener("click", function(){
+      state.lang = b.getAttribute("data-lang"); saveState();
+      $("langPickBtn").textContent = curLang().name;
+      say("Language set to " + curLang().name + ".");
+      show("learn");
+    });
+  });
+  say("Choose a language. " + LANGS.length + " languages available.");
+}
+
+/* ---------------- Learn (path) ---------------- */
+function lessonId(cat, part){ return state.lang + ":" + cat + ":" + part; }
+function isUnlocked(catIdx, part){
+  if(catIdx === 0 && part === 0) return true;
+  var prev = lessonList();
+  for(var i = 0; i < prev.length; i++){
+    if(prev[i].catIdx === catIdx && prev[i].part === part){
+      if(i === 0) return true;
+      return !!state.lessonsDone[prev[i - 1].id];
+    }
+  }
+  return false;
+}
+function lessonList(){
+  var out = [];
+  CATS.forEach(function(c, ci){
+    var items = (langData().cats || {})[c.id] || [];
+    if(!items.length) return;
+    var half = Math.ceil(items.length / 2);
+    out.push({ id: lessonId(c.id, 0), cat: c.id, catIdx: ci, part: 0, title: c.title + " 1", from: 0, to: half });
+    if(items.length > half) out.push({ id: lessonId(c.id, 1), cat: c.id, catIdx: ci, part: 1, title: c.title + " 2", from: half, to: items.length });
+    out.push({ id: lessonId(c.id, 2), cat: c.id, catIdx: ci, part: 2, title: c.title + " Review", from: 0, to: items.length });
+  });
+  return out;
+}
+function renderLearn(){
+  rollDay();
+  var w = wordOfDay();
+  var lessons = lessonList();
+  var doneCount = lessons.filter(function(l){ return state.lessonsDone[l.id]; }).length;
+  var html = "";
+  html += "<div class='strip'><span class='chip'>Streak <b>" + state.streak + "</b></span><span class='chip'>XP <b>" + state.xp + "</b></span><span class='chip'>Level <b>" + level() + "</b></span><span class='chip'>Today <b>" + state.todayXp + " XP</b></span></div>";
+  if(w) html += "<div class='card'><h2>Word of the day</h2><p class='big'>" + esc(w.t) + (w.r ? " <span class='dim'>(" + esc(w.r) + ")</span>" : "") + "</p><p class='dim'>" + esc(w.e) + "</p><button class='btn secondary' id='wotdBtn'>Hear it</button></div>";
+  html += "<div class='card'><h2>" + esc(curLang().name) + " path</h2><p class='dim'>" + doneCount + " of " + lessons.length + " lessons done. Lessons unlock in order, like Duolingo — but nothing ever locks you out for mistakes.</p>";
+  if(!state.placement[state.lang]) html += "<button class='btn secondary' id='placeBtn'>Take the placement test</button>";
+  html += "</div>";
+  var curCat = -1;
+  lessons.forEach(function(l){
+    if(l.catIdx !== curCat){ curCat = l.catIdx; var c = CATS[curCat]; html += "<div class='unithead'><h3>Unit: " + esc(c.title) + "</h3><p>" + esc(c.blurb) + "</p></div>"; }
+    var done = !!state.lessonsDone[l.id];
+    var unlocked = isUnlocked(l.catIdx, l.part);
+    var stars = state.stars[l.id] || 0;
+    html += "<button class='lessonbtn" + (done ? "" : (unlocked ? " current" : " locked")) + "' data-lesson='" + l.id + "'" + (unlocked ? "" : " disabled") + "><span>" + (done ? "Done: " : "") + esc(l.title) + "</span><span class='st'>" + (done ? stars + " stars" : (unlocked ? "Start" : "Locked")) + "</span></button>";
+  });
+  $("view-learn").innerHTML = html;
+  if(w) $("wotdBtn").addEventListener("click", function(){ speakLang(w.t, curLang().tts, 0.85); setTimeout(function(){ say(w.e); }, 1600); });
+  var pb = $("placeBtn"); if(pb) pb.addEventListener("click", startPlacement);
+  Array.prototype.forEach.call($("view-learn").querySelectorAll("[data-lesson]"), function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-lesson");
+      var l = lessonList().filter(function(x){ return x.id === id; })[0];
+      if(l) startLesson(l);
+    });
+  });
+}
+
+/* ---------------- Lesson engine ---------------- */
+var LSN = null;
+function buildQuestions(lesson){
+  var items = [];
+  var catItems = (langData().cats || {})[lesson.cat] || [];
+  for(var i = lesson.from; i < lesson.to; i++) items.push({ cat: lesson.cat, idx: i, t: catItems[i][0], e: catItems[i][1], r: catItems[i][2] || "" });
+  var qs = [];
+  items.forEach(function(it, n){
+    var pool = catItems.map(function(x, xi){ return { t: x[0], e: x[1], r: x[2] || "", idx: xi }; }).filter(function(x){ return x.idx !== it.idx; });
+    var typeCycle = ["listen", "chooseTarget", "chooseEnglish", "repeat", "build"];
+    var type = (lesson.cat === "phrases") ? typeCycle[n % typeCycle.length] : ["listen", "chooseTarget", "chooseEnglish", "repeat"][n % 4];
+    if(type === "build" && it.t.split(/\s+/).length < 2) type = "chooseTarget";
+    qs.push({ type: type, item: it, distract: shuffle(pool).slice(0, 3) });
+  });
+  return shuffle(qs);
+}
+function startLesson(lesson){
+  LSN = { lesson: lesson, qs: buildQuestions(lesson), i: 0, correct: 0, mode: "lesson", answered: false };
+  show("lesson");
+  say(lesson.title + ". " + LSN.qs.length + " questions.");
+  renderQuestion();
+}
+function startPlacement(){
+  var sampleCats = ["greet", "phrases", "food", "travel"];
+  var qs = [];
+  sampleCats.forEach(function(cat){
+    var items = (langData().cats || {})[cat] || [];
+    items.slice(0, 3).forEach(function(x, xi){ qs.push({ type: "chooseEnglish", item: { cat: cat, idx: xi, t: x[0], e: x[1], r: x[2] || "" }, distract: shuffle(items.map(function(y, yi){ return { t: y[0], e: y[1], r: y[2] || "", idx: yi }; }).filter(function(y){ return y.idx !== xi; })).slice(0, 3) }); });
+  });
+  LSN = { lesson: { id: "placement", title: "Placement test", cat: "greet" }, qs: shuffle(qs).slice(0, 10), i: 0, correct: 0, mode: "placement", answered: false };
+  show("lesson");
+  say("Placement test. Ten questions. This just tells the app where to start you.");
+  renderQuestion();
+}
+function startMistakes(){
+  if(!state.mistakes.length){ say("No mistakes saved yet. Nice work."); return; }
+  var qs = state.mistakes.slice(0, 12).map(function(k){
+    var parts = k.split(":"); var it = getItem(parts[1], parseInt(parts[2], 10));
+    if(!it) return null;
+    var catItems = (langData().cats || {})[parts[1]] || [];
+    return { type: "chooseEnglish", item: { cat: parts[1], idx: parseInt(parts[2], 10), t: it[0], e: it[1], r: it[2] || "" }, distract: shuffle(catItems.map(function(y, yi){ return { t: y[0], e: y[1], r: y[2] || "", idx: yi }; }).filter(function(y){ return yi !== parseInt(parts[2], 10); })).slice(0, 3) };
+  }).filter(Boolean);
+  if(!qs.length){ say("No mistakes to review right now."); return; }
+  LSN = { lesson: { id: "mistakes", title: "Mistakes review", cat: "greet" }, qs: qs, i: 0, correct: 0, mode: "mistakes", answered: false };
+  show("lesson");
+  say("Mistakes review. " + qs.length + " questions from words you missed before.");
+  renderQuestion();
+}
+function qHeader(){
+  var pct = Math.round((LSN.i / LSN.qs.length) * 100);
+  return "<button class='btn secondary' id='qQuit'>Quit</button>" +
+    "<div class='progresswrap' role='progressbar' aria-valuenow='" + pct + "'><div class='progressbar' style='width:" + pct + "%'></div></div>" +
+    "<p class='dim center'>Question " + (LSN.i + 1) + " of " + LSN.qs.length + " &bull; " + esc(LSN.lesson.title) + "</p>";
+}
+function renderQuestion(){
+  LSN.answered = false;
+  var q = LSN.qs[LSN.i];
+  var v = $("view-lesson");
+  var html = qHeader();
+  var choices;
+  if(q.type === "listen"){
+    html += "<p class='qprompt'>Listen, then pick the English meaning.</p><button class='btn' id='qPlay'>Play the word</button>";
+    choices = shuffle([q.item].concat(q.distract));
+    html += choices.map(function(c, ci){ return "<button class='btn secondary qchoice' data-ci='" + ci + "' data-ok='" + (c.e === q.item.e ? "1" : "0") + "'>" + esc(c.e) + "</button>"; }).join("");
+  } else if(q.type === "chooseTarget"){
+    html += "<p class='qprompt'>How do you say this?</p><p class='qword'>" + esc(q.item.e) + "</p>";
+    choices = shuffle([q.item].concat(q.distract));
+    html += choices.map(function(c, ci){ return "<button class='btn secondary qchoice' data-ci='" + ci + "' data-ok='" + (c.t === q.item.t ? "1" : "0") + "'>" + esc(c.t) + (c.r ? " (" + esc(c.r) + ")" : "") + "</button>"; }).join("");
+  } else if(q.type === "chooseEnglish"){
+    html += "<p class='qword'>" + esc(q.item.t) + "</p>" + (q.item.r ? "<p class='qrom'>" + esc(q.item.r) + "</p>" : "") +
+      "<button class='btn secondary' id='qPlay'>Hear it</button><p class='qprompt'>What does it mean?</p>";
+    choices = shuffle([q.item].concat(q.distract));
+    html += choices.map(function(c, ci){ return "<button class='btn secondary qchoice' data-ci='" + ci + "' data-ok='" + (c.e === q.item.e ? "1" : "0") + "'>" + esc(c.e) + "</button>"; }).join("");
+  } else if(q.type === "repeat"){
+    html += "<p class='qprompt'>Listen and repeat it out loud.</p><p class='qword'>" + esc(q.item.t) + "</p>" + (q.item.r ? "<p class='qrom'>" + esc(q.item.r) + "</p>" : "") +
+      "<p class='dim center'>" + esc(q.item.e) + "</p>" +
+      "<button class='btn' id='qPlay'>Play it</button>" +
+      "<button class='btn secondary' id='qSlow'>Play it slowly</button>" +
+      "<button class='btn secondary' id='qMic'>Say it (microphone)</button>" +
+      "<button class='btn secondary' id='qSaid'>I said it</button>" +
+      "<p class='dim center' id='qHeard'></p>";
+  } else if(q.type === "build"){
+    var words = shuffle(q.item.t.replace(/[?.!,¿¡]/g, "").split(/\s+/).filter(Boolean));
+    html += "<p class='qprompt'>Build this sentence. Tap the words in order.</p><p class='qword'>" + esc(q.item.e) + "</p>" +
+      "<p class='qrom' id='qBuilt'>&nbsp;</p><div class='chips' id='qChips'>" +
+      words.map(function(w, wi){ return "<button class='catchip' data-w='" + esc(w) + "' data-wi='" + wi + "'>" + esc(w) + "</button>"; }).join("") + "</div>" +
+      "<button class='btn secondary' id='qUndo'>Undo last word</button>" +
+      "<button class='btn' id='qCheck'>Check</button>";
+    LSN.built = [];
+  }
+  html += "<div class='feedback' id='qFb' role='alert'></div><button class='btn' id='qNext' style='display:none'>Continue</button>";
+  v.innerHTML = html;
+  $("qQuit").addEventListener("click", function(){ LSN = null; show("learn"); say("Lesson stopped."); });
+  var play = $("qPlay"); if(play) play.addEventListener("click", function(){ speakLang(q.item.t, curLang().tts, 1); });
+  var slow = $("qSlow"); if(slow) slow.addEventListener("click", function(){ speakLang(q.item.t, curLang().tts, 0.55); });
+  if(q.type === "listen") setTimeout(function(){ speakLang(q.item.t, curLang().tts, 1); }, 350);
+  Array.prototype.forEach.call(v.querySelectorAll(".qchoice"), function(b){
+    b.addEventListener("click", function(){
+      if(LSN.answered) return;
+      var ok = b.getAttribute("data-ok") === "1";
+      gradeAnswer(ok, q, b.textContent);
+    });
+  });
+  var said = $("qSaid"); if(said) said.addEventListener("click", function(){ if(!LSN.answered) gradeAnswer(true, q, ""); });
+  var mic = $("qMic"); if(mic) mic.addEventListener("click", function(){
+    say("Listening. Say it now.");
+    listenLang(curLang().tts, function(text, ok){
+      var heard = $("qHeard");
+      if(!ok || !text){ if(heard) heard.textContent = "I couldn't hear that. Tap 'I said it' if you said it, or try the microphone again."; say("I couldn't hear that clearly."); return; }
+      if(heard) heard.textContent = "You said: " + text;
+      var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, " ").trim(); };
+      var good = norm(text).indexOf(norm(q.item.t)) >= 0 || norm(q.item.t).indexOf(norm(text)) >= 0;
+      gradeAnswer(good, q, text);
+    });
+  });
+  if(q.type === "build"){
+    Array.prototype.forEach.call(v.querySelectorAll("#qChips .catchip"), function(ch){
+      ch.addEventListener("click", function(){
+        if(LSN.answered || ch.disabled) return;
+        LSN.built.push(ch.getAttribute("data-w")); ch.disabled = true; ch.style.opacity = ".35";
+        $("qBuilt").textContent = LSN.built.join(" ");
+      });
+    });
+    $("qUndo").addEventListener("click", function(){
+      if(LSN.answered || !LSN.built.length) return;
+      var w = LSN.built.pop();
+      $("qBuilt").textContent = LSN.built.join(" ");
+      Array.prototype.forEach.call(v.querySelectorAll("#qChips .catchip"), function(ch){ if(ch.disabled && ch.getAttribute("data-w") === w){ ch.disabled = false; ch.style.opacity = "1"; } });
+    });
+    $("qCheck").addEventListener("click", function(){
+      if(LSN.answered) return;
+      var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, " ").trim(); };
+      gradeAnswer(norm(LSN.built.join(" ")) === norm(q.item.t), q, LSN.built.join(" "));
+    });
+  }
+  $("qNext").addEventListener("click", nextQuestion);
+}
+function gradeAnswer(ok, q, given){
+  LSN.answered = true;
+  var fb = $("qFb");
+  var key = itemKey(q.item.cat, q.item.idx);
+  bumpSrs(key, ok);
+  if(ok){
+    LSN.correct++;
+    var mi = state.mistakes.indexOf(key); if(mi >= 0) state.mistakes.splice(mi, 1);
+    fb.className = "feedback good";
+    fb.innerHTML = "Correct. <b>" + esc(q.item.t) + "</b> means <b>" + esc(q.item.e) + "</b>.";
+    say("Correct.");
+    speakLang(q.item.t, curLang().tts, 0.9);
+  } else {
+    if(state.mistakes.indexOf(key) < 0) state.mistakes.push(key);
+    fb.className = "feedback bad";
+    fb.innerHTML = "Not quite. <b>" + esc(q.item.t) + "</b> means <b>" + esc(q.item.e) + "</b>. It is saved in your Mistakes review.";
+    say("Not quite. " + q.item.t + " means " + q.item.e + ".");
+  }
+  saveState();
+  var nx = $("qNext"); if(nx){ nx.style.display = "block"; nx.focus(); }
+}
+function bumpSrs(key, ok){
+  var b = state.srs[key] || 0;
+  state.srs[key] = ok ? Math.min(5, b + 1) : 0;
+}
+function nextQuestion(){
+  LSN.i++;
+  if(LSN.i >= LSN.qs.length){ finishSession(); return; }
+  renderQuestion();
+}
+function finishSession(){
+  var total = LSN.qs.length, correct = LSN.correct;
+  var xpGain = correct * 2 + (correct === total ? 5 : 0);
+  var stars = correct === total ? 3 : (correct >= total * 0.7 ? 2 : (correct >= total * 0.4 ? 1 : 0));
+  var msg = "";
+  if(LSN.mode === "lesson"){
+    state.lessonsDone[LSN.lesson.id] = true;
+    if((state.stars[LSN.lesson.id] || 0) < stars) state.stars[LSN.lesson.id] = stars;
+    addXp(xpGain);
+    msg = LSN.lesson.title + " complete. You got " + correct + " of " + total + " right and earned " + xpGain + " XP.";
+  } else if(LSN.mode === "placement"){
+    state.placement[state.lang] = correct;
+    if(correct >= 7){
+      var lessons = lessonList();
+      lessons.slice(0, 4).forEach(function(l){ state.lessonsDone[l.id] = true; if(!state.stars[l.id]) state.stars[l.id] = 2; });
+      msg = "Placement done. You scored " + correct + " of " + total + " — strong start. I marked the first few lessons done so you start further along the path.";
+    } else {
+      msg = "Placement done. You scored " + correct + " of " + total + ". The path starts at the beginning, which is the right place to build from.";
+    }
+    addXp(correct * 2);
+  } else {
+    addXp(correct * 2);
+    msg = "Review complete. " + correct + " of " + total + " right. Anything you missed stays in the list for next time.";
+  }
+  saveState();
+  var v = $("view-lesson");
+  v.innerHTML = "<div class='card center'><h2>Session complete</h2><p class='big'>" + esc(msg) + "</p><p class='dim'>Total XP: " + state.xp + " &bull; Streak: " + state.streak + " days</p><button class='btn' id='finBtn'>Back to Learn</button></div>";
+  $("finBtn").addEventListener("click", function(){ LSN = null; show("learn"); });
+  say(msg);
+}
+</script>
+<script>
+"use strict";
+/* ---------------- Vocabulary ---------------- */
+var vocabCat = "greet";
+function renderVocab(){
+  var cats = langData().cats || {};
+  var html = "<div class='card'><h2>Vocabulary — " + esc(curLang().name) + "</h2><p class='dim'>Words you have practiced show a level from 0 to 5. Missed words drop back to 0 and land in Mistakes review.</p><div class='chips'>";
+  CATS.forEach(function(c){ html += "<button class='catchip" + (vocabCat === c.id ? " active" : "") + "' data-vcat='" + c.id + "'>" + esc(c.title) + "</button>"; });
+  html += "</div><button class='btn' id='flashBtn'>Flashcards for this set</button></div>";
+  (cats[vocabCat] || []).forEach(function(it, i){
+    var key = itemKey(vocabCat, i);
+    var lvl = state.srs[key];
+    var fav = state.favs.indexOf(key) >= 0;
+    html += "<div class='wordrow'><div class='w'><div class='t'>" + esc(it[0]) + "</div><div class='e'>" + esc(it[1]) + (it[2] ? " &bull; " + esc(it[2]) : "") + (lvl !== undefined ? " &bull; level " + lvl : "") + "</div></div>" +
+      "<button class='mini' data-say='" + i + "'>Hear</button>" +
+      "<button class='mini' data-slow='" + i + "'>Slow</button>" +
+      "<button class='mini' data-fav='" + i + "'>" + (fav ? "Saved" : "Save") + "</button></div>";
+  });
+  $("view-vocab").innerHTML = html;
+  Array.prototype.forEach.call($("view-vocab").querySelectorAll("[data-vcat]"), function(b){ b.addEventListener("click", function(){ vocabCat = b.getAttribute("data-vcat"); renderVocab(); }); });
+  Array.prototype.forEach.call($("view-vocab").querySelectorAll("[data-say]"), function(b){ b.addEventListener("click", function(){ var it = getItem(vocabCat, parseInt(b.getAttribute("data-say"), 10)); if(it) speakLang(it[0], curLang().tts, 1); }); });
+  Array.prototype.forEach.call($("view-vocab").querySelectorAll("[data-slow]"), function(b){ b.addEventListener("click", function(){ var it = getItem(vocabCat, parseInt(b.getAttribute("data-slow"), 10)); if(it) speakLang(it[0], curLang().tts, 0.5); }); });
+  Array.prototype.forEach.call($("view-vocab").querySelectorAll("[data-fav]"), function(b){ b.addEventListener("click", function(){
+    var key = itemKey(vocabCat, parseInt(b.getAttribute("data-fav"), 10));
+    var i = state.favs.indexOf(key); if(i >= 0) state.favs.splice(i, 1); else state.favs.push(key);
+    saveState(); renderVocab();
+  }); });
+  $("flashBtn").addEventListener("click", startFlashcards);
+}
+var FC = null;
+function startFlashcards(){
+  var items = ((langData().cats || {})[vocabCat] || []).map(function(it, i){ return { idx: i, t: it[0], e: it[1], r: it[2] || "" }; });
+  if(!items.length) return;
+  FC = { items: shuffle(items), i: 0, flipped: false };
+  show("lesson");
+  renderFlash();
+}
+function renderFlash(){
+  var it = FC.items[FC.i];
+  var v = $("view-lesson");
+  v.innerHTML = "<button class='btn secondary' id='fcQuit'>Back to Vocabulary</button>" +
+    "<div class='card center'><p class='dim'>Flashcard " + (FC.i + 1) + " of " + FC.items.length + "</p>" +
+    (FC.flipped ? "<p class='qword'>" + esc(it.e) + "</p>" : "<p class='qword'>" + esc(it.t) + "</p>" + (it.r ? "<p class='qrom'>" + esc(it.r) + "</p>" : "")) +
+    "<button class='btn' id='fcHear'>Hear it</button>" +
+    "<button class='btn secondary' id='fcFlip'>" + (FC.flipped ? "Show the word again" : "Show the meaning") + "</button>" +
+    "<div style='display:flex;gap:8px'><button class='btn bad' id='fcMiss' style='flex:1'>I missed it</button><button class='btn good' id='fcKnow' style='flex:1'>I knew it</button></div></div>";
+  $("fcQuit").addEventListener("click", function(){ FC = null; show("vocab"); });
+  $("fcHear").addEventListener("click", function(){ speakLang(it.t, curLang().tts, 0.9); });
+  $("fcFlip").addEventListener("click", function(){ FC.flipped = !FC.flipped; renderFlash(); if(FC.flipped) say(it.e); });
+  var step = function(ok){
+    bumpSrs(itemKey(vocabCat, it.idx), ok);
+    if(!ok){ var k = itemKey(vocabCat, it.idx); if(state.mistakes.indexOf(k) < 0) state.mistakes.push(k); }
+    else { var k2 = itemKey(vocabCat, it.idx); var mi = state.mistakes.indexOf(k2); if(mi >= 0) state.mistakes.splice(mi, 1); }
+    saveState();
+    FC.i++; FC.flipped = false;
+    if(FC.i >= FC.items.length){ FC = null; say("Flashcards done."); show("vocab"); } else renderFlash();
+  };
+  $("fcKnow").addEventListener("click", function(){ step(true); });
+  $("fcMiss").addEventListener("click", function(){ step(false); });
+  speakLang(it.t, curLang().tts, 0.9);
+}
+
+/* ---------------- Practice hub ---------------- */
+function renderPractice(){
+  var html = "<div class='card'><h2>Practice — " + esc(curLang().name) + "</h2><p class='dim'>Extra ways to practice, like Duolingo's practice hub.</p></div>";
+  html += "<div class='card'><h3>Hands-free audio lesson</h3><p class='dim'>Audio only, made for walks. The app says a word in English, then in " + esc(curLang().name) + " twice — once slow, once normal. Screen can stay off.</p><button class='btn' id='pAudio'>Start audio lesson</button><button class='btn secondary' id='pAudioStop'>Stop audio</button></div>";
+  html += "<div class='card'><h3>Mistakes review</h3><p class='dim'>" + state.mistakes.length + " saved mistake" + (state.mistakes.length === 1 ? "" : "s") + " in " + esc(curLang().name) + ".</p><button class='btn' id='pMistakes'>Review mistakes</button></div>";
+  html += "<div class='card'><h3>Stories and dialogues</h3><p class='dim'>Short spoken conversations built from your phrases, with questions after.</p><button class='btn' id='pStory'>Play a dialogue</button></div>";
+  html += "<div class='card'><h3>Phrasebook</h3><p class='dim'>Everyday phrases with favorites. Your saved phrases come first.</p><button class='btn' id='pPhrases'>Open phrasebook</button></div>";
+  html += "<div class='card'><h3>Translator</h3><p class='dim'>Type or say something in English and hear it in " + esc(curLang().name) + ". Uses the internet.</p><button class='btn' id='pTrans'>Open translator</button></div>";
+  html += "<div class='card'><h3>Conversation practice</h3><p class='dim'>Guided roleplay conversations — no key needed. If you add your own Groq key in Settings, this also unlocks free AI chat.</p><button class='btn' id='pConvo'>Start a conversation</button></div>";
+  $("view-practice").innerHTML = html;
+  $("pAudio").addEventListener("click", startAudioLesson);
+  $("pAudioStop").addEventListener("click", stopAudioLesson);
+  $("pMistakes").addEventListener("click", startMistakes);
+  $("pStory").addEventListener("click", startDialogue);
+  $("pPhrases").addEventListener("click", renderPhrasebook);
+  $("pTrans").addEventListener("click", renderTranslator);
+  $("pConvo").addEventListener("click", renderConvo);
+}
+var _audioTimers = [];
+function stopAudioLesson(){
+  _audioTimers.forEach(function(t){ clearTimeout(t); }); _audioTimers = [];
+  try { if(window.LynxosTts && LynxosTts.stop) LynxosTts.stop(); } catch(e){}
+  try { speechSynthesis.cancel(); } catch(e){}
+}
+function startAudioLesson(){
+  stopAudioLesson();
+  var items = shuffle(allItems()).slice(0, 10);
+  if(!items.length) return;
+  say("Audio lesson. Ten words and phrases. Listen, then repeat after the slow version.");
+  var delay = 2500;
+  items.forEach(function(it, n){
+    _audioTimers.push(setTimeout(function(){ say("Number " + (n + 1) + ". In English: " + it.e); }, delay)); delay += 2600;
+    _audioTimers.push(setTimeout(function(){ speakLang(it.t, curLang().tts, 0.55, true); }, delay)); delay += 3200;
+    _audioTimers.push(setTimeout(function(){ speakLang(it.t, curLang().tts, 1, true); }, delay)); delay += 3400;
+  });
+  _audioTimers.push(setTimeout(function(){ say("Audio lesson complete. Good work."); addXp(10); saveState(); }, delay));
+}
+function renderPhrasebook(){
+  var phrases = ((langData().cats || {}).phrases || []).map(function(it, i){ return { idx: i, t: it[0], e: it[1], r: it[2] || "" }; });
+  var favSet = {}; state.favs.forEach(function(k){ favSet[k] = 1; });
+  phrases.sort(function(a, b){ var fa = favSet[itemKey("phrases", a.idx)] ? 0 : 1; var fb = favSet[itemKey("phrases", b.idx)] ? 0 : 1; return fa - fb; });
+  var html = "<button class='btn secondary' id='pbBack'>Back to Practice</button><div class='card'><h2>Phrasebook — " + esc(curLang().name) + "</h2></div>";
+  phrases.forEach(function(p){
+    var fav = !!favSet[itemKey("phrases", p.idx)];
+    html += "<div class='wordrow'><div class='w'><div class='t'>" + esc(p.t) + "</div><div class='e'>" + esc(p.e) + (p.r ? " &bull; " + esc(p.r) : "") + "</div></div><button class='mini' data-psay='" + p.idx + "'>Hear</button><button class='mini' data-pfav='" + p.idx + "'>" + (fav ? "Saved" : "Save") + "</button></div>";
+  });
+  $("view-practice").innerHTML = html;
+  $("pbBack").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-psay]"), function(b){ b.addEventListener("click", function(){ var it = getItem("phrases", parseInt(b.getAttribute("data-psay"), 10)); if(it) speakLang(it[0], curLang().tts, 0.9); }); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-pfav]"), function(b){ b.addEventListener("click", function(){
+    var key = itemKey("phrases", parseInt(b.getAttribute("data-pfav"), 10));
+    var i = state.favs.indexOf(key); if(i >= 0) state.favs.splice(i, 1); else state.favs.push(key);
+    saveState(); renderPhrasebook();
+  }); });
+  say("Phrasebook. " + phrases.length + " phrases.");
+}
+function startDialogue(){
+  var phrases = ((langData().cats || {}).phrases || []);
+  var greet = ((langData().cats || {}).greet || []);
+  if(phrases.length < 5 || greet.length < 3){ say("Not enough phrases for a dialogue yet."); return; }
+  var lines = [
+    { who: "Ana", item: greet[0] }, { who: "Ben", item: greet[0] },
+    { who: "Ana", item: phrases[0] }, { who: "Ben", item: phrases[1] },
+    { who: "Ana", item: phrases[5] }, { who: "Ben", item: phrases[6] },
+    { who: "Ana", item: phrases[3] }, { who: "Ben", item: greet[3] },
+    { who: "Ana", item: phrases[8] }
+  ];
+  var v = $("view-lesson");
+  VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
+  var html = "<button class='btn secondary' id='dQuit'>Back</button><div class='card'><h2>A short dialogue</h2><p class='dim'>Ana and Ben meet. Listen to each line — English is shown after each one.</p>";
+  lines.forEach(function(l, i){ html += "<p><b>" + l.who + ":</b> " + esc(l.item[0]) + (l.item[2] ? " (" + esc(l.item[2]) + ")" : "") + "<br><span class='dim'>" + esc(l.item[1]) + "</span></p>"; });
+  html += "<button class='btn' id='dPlay'>Play the dialogue</button><button class='btn secondary' id='dQuiz'>Answer questions about it</button></div>";
+  v.innerHTML = html;
+  $("dQuit").addEventListener("click", function(){ show("practice"); });
+  $("dPlay").addEventListener("click", function(){
+    stopAudioLesson();
+    var delay = 300;
+    lines.forEach(function(l){ _audioTimers.push(setTimeout(function(){ speakLang(l.item[0], curLang().tts, 0.9, true); }, delay)); delay += Math.max(1800, l.item[0].length * 130); });
+  });
+  $("dQuiz").addEventListener("click", function(){
+    var qs = [
+      { type: "chooseEnglish", item: { cat: "phrases", idx: 5, t: phrases[5][0], e: phrases[5][1], r: phrases[5][2] || "" }, distract: shuffle(phrases.map(function(y, yi){ return { t: y[0], e: y[1], r: y[2] || "", idx: yi }; }).filter(function(y){ return y.idx !== 5; })).slice(0, 3) },
+      { type: "chooseEnglish", item: { cat: "phrases", idx: 0, t: phrases[0][0], e: phrases[0][1], r: phrases[0][2] || "" }, distract: shuffle(phrases.map(function(y, yi){ return { t: y[0], e: y[1], r: y[2] || "", idx: yi }; }).filter(function(y){ return y.idx !== 0; })).slice(0, 3) }
+    ];
+    LSN = { lesson: { id: "dialogue", title: "Dialogue questions", cat: "phrases" }, qs: qs, i: 0, correct: 0, mode: "review", answered: false };
+    renderQuestion();
+    say("Two questions about the dialogue.");
+  });
+  say("A short dialogue between Ana and Ben. Tap play to listen.");
+}
+function renderTranslator(){
+  var html = "<button class='btn secondary' id='tBack'>Back to Practice</button><div class='card'><h2>Translator</h2>" +
+    "<p class='dim'>English to " + esc(curLang().name) + ". Type or dictate, then tap Translate. Needs internet.</p>" +
+    "<label for='tIn'>English text</label><input type='text' id='tIn' placeholder='Type English here'>" +
+    "<button class='btn secondary' id='tMic'>Dictate in English</button>" +
+    "<button class='btn' id='tGo'>Translate</button>" +
+    "<p class='qword' id='tOut'></p><p class='dim center' id='tStatus'></p>" +
+    "<button class='btn secondary' id='tHear' style='display:none'>Hear the translation</button></div>";
+  $("view-practice").innerHTML = html;
+  $("tBack").addEventListener("click", function(){ show("practice"); });
+  $("tMic").addEventListener("click", function(){
+    say("Listening.");
+    listenLang("en-US", function(text, ok){ if(ok && text){ $("tIn").value = text; say("Got it. Tap Translate."); } else say("I couldn't hear that."); });
+  });
+  var lastOut = "";
+  $("tGo").addEventListener("click", function(){
+    var q = $("tIn").value.trim(); if(!q){ say("Type something first."); return; }
+    $("tStatus").textContent = "Translating…";
+    var pair = "en|" + curLang().code.split("-")[0];
+    fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(q) + "&langpair=" + encodeURIComponent(pair))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var out = d && d.responseData && d.responseData.translatedText;
+        if(out){ lastOut = out; $("tOut").textContent = out; $("tStatus").textContent = ""; $("tHear").style.display = "block"; speakLang(out, curLang().tts, 0.9); }
+        else { $("tStatus").textContent = "No translation came back. Check your connection."; say("Translation failed."); }
+      })
+      .catch(function(){ $("tStatus").textContent = "Translation failed. Check your connection."; say("Translation failed."); });
+  });
+  $("tHear").addEventListener("click", function(){ if(lastOut) speakLang(lastOut, curLang().tts, 0.85); });
+}
+function renderConvo(){
+  var scenarios = [
+    { title: "At a café", lines: [["Waiter", "phrases", 5], ["You", "phrases", 6], ["Waiter", "greet", 3], ["You", "phrases", 8]] },
+    { title: "Meeting someone new", lines: [["Ana", "greet", 0], ["You", "phrases", 0], ["Ana", "phrases", 3], ["You", "greet", 9]] },
+    { title: "Asking for help", lines: [["You", "phrases", 7], ["Ben", "phrases", 3], ["You", "phrases", 4], ["Ben", "greet", 2]] }
+  ];
+  var html = "<button class='btn secondary' id='cBack'>Back to Practice</button><div class='card'><h2>Conversation practice</h2><p class='dim'>Guided roleplays in " + esc(curLang().name) + ". Each line is spoken; your lines are marked You.</p></div>";
+  scenarios.forEach(function(s, si){ html += "<button class='lessonbtn' data-sc='" + si + "'><span>" + esc(s.title) + "</span><span class='st'>Play</span></button>"; });
+  if(state.groqKey){
+    html += "<div class='card'><h3>Free AI chat</h3><label for='aiIn'>Say something in " + esc(curLang().name) + " (or English)</label><input type='text' id='aiIn' placeholder='Type a message'><button class='btn' id='aiSend'>Send</button><p id='aiOut' class='dim'></p><button class='btn secondary' id='aiHear' style='display:none'>Hear the reply</button></div>";
+  } else {
+    html += "<div class='card'><h3>Free AI chat</h3><p class='dim'>Locked. Add your own Groq key in Settings to unlock open-ended AI conversation. The guided roleplays above always work, no key needed.</p></div>";
+  }
+  $("view-practice").innerHTML = html;
+  $("cBack").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-sc]"), function(b){
+    b.addEventListener("click", function(){
+      var s = scenarios[parseInt(b.getAttribute("data-sc"), 10)];
+      stopAudioLesson();
+      say(s.title + ". Listen.");
+      var delay = 600;
+      s.lines.forEach(function(L){
+        var it = getItem(L[1], L[2]); if(!it) return;
+        _audioTimers.push(setTimeout(function(){ say(L[0] + " says:"); }, delay)); delay += 1200;
+        _audioTimers.push(setTimeout(function(){ speakLang(it[0], curLang().tts, 0.9, true); }, delay)); delay += Math.max(2000, it[0].length * 140);
+      });
+      _audioTimers.push(setTimeout(function(){ say("Conversation finished."); addXp(5); saveState(); }, delay));
+    });
+  });
+  var send = $("aiSend");
+  if(send) send.addEventListener("click", function(){
+    var msg = $("aiIn").value.trim(); if(!msg) return;
+    var out = $("aiOut"); out.textContent = "Thinking…";
+    fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + state.groqKey },
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [
+        { role: "system", content: "You are a friendly " + curLang().name + " conversation tutor for a beginner. Reply mostly in " + curLang().name + ", keep replies to 1-2 short sentences, then give the English translation in parentheses." },
+        { role: "user", content: msg }
+      ] })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      var txt = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      if(txt){ out.textContent = txt; $("aiHear").style.display = "block"; $("aiHear").onclick = function(){ speakLang(txt.split("(")[0], curLang().tts, 0.9); }; say("Reply received."); }
+      else { out.textContent = "No reply. Check your key in Settings."; }
+    }).catch(function(){ out.textContent = "AI chat failed. Check your connection and key."; });
+  });
+}
+
+/* ---------------- Progress ---------------- */
+function renderProgress(){
+  rollDay();
+  var doneCount = Object.keys(state.lessonsDone).length;
+  var goalXp = state.goalMin * 2;
+  var html = "<div class='card'><h2>Your progress</h2>" +
+    "<p class='big'>Level " + level() + " &bull; " + state.xp + " XP</p>" +
+    "<p>Streak: <b>" + state.streak + " day" + (state.streak === 1 ? "" : "s") + "</b></p>" +
+    "<p>Lessons completed: <b>" + doneCount + "</b></p>" +
+    "<p>Words in training: <b>" + Object.keys(state.srs).length + "</b></p>" +
+    "<p>Saved phrases and words: <b>" + state.favs.length + "</b></p>" +
+    "<p>Daily goal: " + state.goalMin + " minutes (about " + goalXp + " XP). Today: " + state.todayXp + " XP" + (state.todayXp >= goalXp ? " — goal reached, nice work." : ".") + "</p></div>";
+  html += "<div class='card'><h2>Badges</h2>";
+  BADGES.forEach(function(b){ var has = state.badges.indexOf(b.id) >= 0; html += "<span class='badge" + (has ? "" : " off") + "'>" + esc(b.name) + (has ? "" : " (locked)") + "</span>"; });
+  html += "</div>";
+  html += "<div class='card'><h2>Per language</h2>";
+  LANGS.forEach(function(l){
+    var n = Object.keys(state.lessonsDone).filter(function(k){ return k.indexOf(l.code + ":") === 0; }).length;
+    if(n) html += "<p>" + esc(l.name) + ": " + n + " lessons</p>";
+  });
+  html += "<p class='dim'>Switch languages any time with the language button at the top.</p></div>";
+  $("view-progress").innerHTML = html;
+}
+
+/* ---------------- Account + cloud sync ---------------- */
+function sbTokens(){ try { var t = localStorage.getItem("ll_sb_tokens"); return t ? JSON.parse(t) : null; } catch(e){ return null; } }
+function sbSaveTokens(a, r){ try { localStorage.setItem("ll_sb_tokens", JSON.stringify({ access: a, refresh: r })); } catch(e){} }
+function sbClear(){ try { localStorage.removeItem("ll_sb_tokens"); localStorage.removeItem("ll_sb_user"); } catch(e){} }
+function sbUser(){ try { var u = localStorage.getItem("ll_sb_user"); return u ? JSON.parse(u) : null; } catch(e){ return null; } }
+function startGoogleLogin(){
+  var url = SUPABASE_URL + "/auth/v1/authorize?provider=google&redirect_to=" + encodeURIComponent(REDIRECT);
+  say("Opening Google sign-in in your browser. Finish there, then come back to the app.");
+  window.location.href = url;
+}
+window.handleAuthCallback = function(url){
+  if(!url) return;
+  try {
+    var hash = url.split("#")[1] || "";
+    var params = {};
+    hash.split("&").forEach(function(p){ var kv = p.split("="); if(kv[0]) params[kv[0]] = decodeURIComponent(kv.slice(1).join("=") || ""); });
+    if(params.access_token && params.refresh_token){
+      sbSaveTokens(params.access_token, params.refresh_token);
+      say("Signed in. Loading your account.");
+      fetchUserInfo(function(){ cloudDownload(function(){ show("account"); }); });
+    } else if(url.indexOf("error") >= 0){ say("Sign-in was cancelled or failed."); }
+  } catch(e){}
+};
+function fetchUserInfo(cb){
+  var t = sbTokens(); if(!t){ if(cb) cb(); return; }
+  fetch(SUPABASE_URL + "/auth/v1/user", { headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + t.access } })
+    .then(function(r){ return r.json(); })
+    .then(function(u){ if(u && u.id){ try { localStorage.setItem("ll_sb_user", JSON.stringify(u)); } catch(e){} } else sbClear(); if(cb) cb(); })
+    .catch(function(){ if(cb) cb(); });
+}
+function cloudUpload(quiet){
+  var t = sbTokens(); var u = sbUser();
+  if(!t || !u) return;
+  var payload = { user_id: u.id, data: state, updated_at: new Date(state.updatedAt || Date.now()).toISOString() };
+  fetch(SUPABASE_URL + "/rest/v1/lynxo_language_progress?on_conflict=user_id", {
+    method: "POST",
+    headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + t.access, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates" },
+    body: JSON.stringify(payload)
+  }).then(function(r){ if(!quiet) say(r.ok ? "Progress saved to your account." : "Cloud save failed — your progress is still saved on this device."); })
+    .catch(function(){ if(!quiet) say("Cloud save failed — your progress is still saved on this device."); });
+}
+function cloudDownload(cb){
+  var t = sbTokens(); var u = sbUser();
+  if(!t || !u){ if(cb) cb(false); return; }
+  fetch(SUPABASE_URL + "/rest/v1/lynxo_language_progress?user_id=eq." + u.id + "&select=data,updated_at", {
+    headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + t.access }
+  }).then(function(r){ return r.json(); }).then(function(rows){
+    if(rows && rows.length && rows[0].data){
+      var cloud = rows[0].data;
+      if((cloud.updatedAt || 0) > (state.updatedAt || 0) && (cloud.xp || 0) > 0){
+        var keepSettings = state.settings; state = cloud; if(!state.settings) state.settings = keepSettings;
+        try { localStorage.setItem("ll_state_v1", JSON.stringify(state)); } catch(e){}
+        $("langPickBtn").textContent = curLang().name;
+        if(cb) cb(true); return;
+      }
+    }
+    if(cb) cb(false);
+  }).catch(function(){ if(cb) cb(false); });
+}
+function renderAccount(){
+  var u = sbUser(); var t = sbTokens();
+  var html = "<button class='btn secondary' id='accBack'>Back</button><div class='card center'>";
+  if(u && t){
+    var name = (u.user_metadata && (u.user_metadata.full_name || u.user_metadata.name)) || u.email || "Signed in";
+    html += "<h2>Account</h2><p class='big'>" + esc(name) + "</p><p class='dim'>" + esc(u.email || "") + "</p>" +
+      "<p>Your progress saves to this account automatically. Sign in on another device with the same Google account and it follows you.</p>" +
+      "<button class='btn' id='syncBtn'>Sync now</button><button class='btn secondary' id='outBtn'>Sign out</button>";
+  } else {
+    html += "<h2>Sign in</h2><p>Sign in with Google so your progress is saved to your account and never lost — even if you reinstall or change phones.</p>" +
+      "<button class='btn' id='inBtn'>Sign in with Google</button>" +
+      "<p class='dim'>The app works without signing in too — progress just stays on this device until you do.</p>";
+  }
+  html += "</div>";
+  $("view-account").innerHTML = html;
+  $("accBack").addEventListener("click", function(){ show("learn"); });
+  var inB = $("inBtn"); if(inB) inB.addEventListener("click", startGoogleLogin);
+  var outB = $("outBtn"); if(outB) outB.addEventListener("click", function(){ sbClear(); say("Signed out."); renderAccount(); });
+  var syB = $("syncBtn"); if(syB) syB.addEventListener("click", function(){ cloudUpload(false); });
+}
+
+/* ---------------- Settings + updater ---------------- */
+function renderSettings(){
+  var html = "<button class='btn secondary' id='setBack'>Back</button><div class='card'><h2>Settings</h2>" +
+    "<label for='goalSel'>Daily goal</label><select id='goalSel'>" +
+    [1, 5, 10, 15, 20].map(function(m){ return "<option value='" + m + "'" + (state.goalMin === m ? " selected" : "") + ">" + m + " minutes a day</option>"; }).join("") + "</select>" +
+    "<label for='rateSel'>Speech speed for the language voices</label><select id='rateSel'>" +
+    [["0.7", "Slow"], ["1", "Normal"], ["1.15", "A little fast"]].map(function(r){ return "<option value='" + r[0] + "'" + (String(state.settings.rate) === r[0] ? " selected" : "") + ">" + r[1] + "</option>"; }).join("") + "</select>" +
+    "<label for='groqIn'>Groq key for AI chat (optional, stored only on this device)</label><input type='password' id='groqIn' value='" + esc(state.groqKey || "") + "' placeholder='Leave empty to keep AI chat locked'>" +
+    "<button class='btn' id='saveSet'>Save settings</button></div>" +
+    "<div class='card'><h2>Updates</h2><p class='dim'>Version " + APP_VERSION_NAME + " (build " + APP_VERSION_CODE + "). Check for a newer version and install it right here — no uninstalling, ever.</p>" +
+    "<button class='btn' id='updBtn'>Check for updates</button><p class='dim' id='updStatus'></p></div>" +
+    "<div class='card'><h2>About</h2><p class='dim'>Lynxo Language Learning. Learn languages by ear: every lesson is spoken, with big simple controls. Modeled on Duolingo's flow, built blind-first in gold and black.</p></div>";
+  $("view-settings").innerHTML = html;
+  $("setBack").addEventListener("click", function(){ show("learn"); });
+  $("saveSet").addEventListener("click", function(){
+    state.goalMin = parseInt($("goalSel").value, 10) || 5;
+    state.settings.rate = parseFloat($("rateSel").value) || 1;
+    state.groqKey = $("groqIn").value.trim();
+    saveState();
+    say("Settings saved.");
+  });
+  $("updBtn").addEventListener("click", checkForUpdates);
+}
+window.__onUpdateStatus = function(s){
+  var el = $("updStatus"); if(el) el.textContent = "Update: " + s;
+  if(s === "downloading") say("Downloading the update.");
+  else if(s.indexOf("downloading:") === 0) { /* progress ticks: keep quiet */ }
+  else if(s === "installing" || s === "launched") say("Opening the installer. Tap Install when it appears.");
+  else if(s === "need_permission") say("The app needs permission to install updates. Allow it on the screen that opened, then check for updates again.");
+  else if(s.indexOf("error") === 0) say("Update failed. Check your connection and try again.");
+};
+function checkForUpdates(){
+  var el = $("updStatus"); if(el) el.textContent = "Checking…";
+  say("Checking for updates.");
+  fetch("https://api.github.com/repos/" + REPO + "/releases/latest", { headers: { "Accept": "application/vnd.github+json" } })
+    .then(function(r){ return r.json(); })
+    .then(function(rel){
+      var tag = rel && rel.tag_name ? rel.tag_name : "";
+      var m = tag.match(/\+(\d+)$/);
+      var code = m ? parseInt(m[1], 10) : 0;
+      if(code > APP_VERSION_CODE){
+        var asset = (rel.assets || []).filter(function(a){ return /\.apk$/i.test(a.name); })[0];
+        if(!asset){ if(el) el.textContent = "A new version exists but has no install file yet."; return; }
+        if(el) el.textContent = "Update available: " + tag + ". Downloading…";
+        say("Update available. Downloading it now.");
+        try { LynxosUpdater.downloadAndInstall(asset.browser_download_url); }
+        catch(e){ if(el) el.textContent = "Updater not available in this build."; }
+      } else {
+        if(el) el.textContent = "You are on the latest version (" + APP_VERSION_NAME + ").";
+        say("You are on the latest version.");
+      }
+    })
+    .catch(function(){ if(el) el.textContent = "Could not check. Check your connection."; say("Could not check for updates."); });
+}
+window.tvBack = function(){
+  if(LSN){ LSN = null; show("learn"); return "handled"; }
+  if(FC){ FC = null; show("vocab"); return "handled"; }
+  return "exit";
+};
+</script>
+<script>
+"use strict";
+var CATS = [
+  { id: "greet", title: "Greetings", blurb: "Hello, goodbye, and being polite." },
+  { id: "nums", title: "Numbers", blurb: "Counting from one to ten." },
+  { id: "colors", title: "Colors", blurb: "Everyday colors." },
+  { id: "family", title: "People and Family", blurb: "Family members and people." },
+  { id: "food", title: "Food and Drink", blurb: "Things you eat and drink." },
+  { id: "phrases", title: "Everyday Phrases", blurb: "Full sentences you will actually use." },
+  { id: "travel", title: "Travel", blurb: "Getting around in a new place." },
+  { id: "time", title: "Time and Days", blurb: "Today, tomorrow, and parts of the day." }
+];
+var LANGS = [
+  { code: "es", name: "Spanish", native: "Español", tts: "es-ES" },
+  { code: "fr", name: "French", native: "Français", tts: "fr-FR" },
+  { code: "de", name: "German", native: "Deutsch", tts: "de-DE" },
+  { code: "it", name: "Italian", native: "Italiano", tts: "it-IT" },
+  { code: "pt", name: "Portuguese", native: "Português", tts: "pt-PT" },
+  { code: "nl", name: "Dutch", native: "Nederlands", tts: "nl-NL" },
+  { code: "sv", name: "Swedish", native: "Svenska", tts: "sv-SE" },
+  { code: "no", name: "Norwegian", native: "Norsk", tts: "nb-NO" },
+  { code: "pl", name: "Polish", native: "Polski", tts: "pl-PL" },
+  { code: "ru", name: "Russian", native: "Русский", tts: "ru-RU" },
+  { code: "uk", name: "Ukrainian", native: "Українська", tts: "uk-UA" },
+  { code: "el", name: "Greek", native: "Ελληνικά", tts: "el-GR" },
+  { code: "tr", name: "Turkish", native: "Türkçe", tts: "tr-TR" },
+  { code: "ar", name: "Arabic", native: "العربية", tts: "ar-SA" },
+  { code: "hi", name: "Hindi", native: "हिन्दी", tts: "hi-IN" },
+  { code: "ja", name: "Japanese", native: "日本語", tts: "ja-JP" },
+  { code: "ko", name: "Korean", native: "한국어", tts: "ko-KR" },
+  { code: "zh", name: "Mandarin Chinese", native: "中文", tts: "zh-CN" }
+];
+var LANGDATA = {
+es: { cats: {
+  greet: [["hola","hello"],["adiós","goodbye"],["por favor","please"],["gracias","thank you"],["sí","yes"],["no","no"],["perdón","excuse me"],["buenos días","good morning"],["buenas noches","good night"],["¿cómo estás?","how are you"]],
+  nums: [["uno","one"],["dos","two"],["tres","three"],["cuatro","four"],["cinco","five"],["seis","six"],["siete","seven"],["ocho","eight"],["nueve","nine"],["diez","ten"]],
+  colors: [["rojo","red"],["azul","blue"],["verde","green"],["amarillo","yellow"],["negro","black"],["blanco","white"],["naranja","orange"],["morado","purple"]],
+  family: [["madre","mother"],["padre","father"],["hermana","sister"],["hermano","brother"],["familia","family"],["amigo","friend"],["hombre","man"],["mujer","woman"]],
+  food: [["agua","water"],["pan","bread"],["café","coffee"],["leche","milk"],["queso","cheese"],["huevo","egg"],["manzana","apple"],["arroz","rice"],["pollo","chicken"],["pescado","fish"]],
+  phrases: [["Me llamo","My name is"],["Soy de Texas","I am from Texas"],["No entiendo","I don't understand"],["¿Hablas inglés?","Do you speak English?"],["¿Dónde está el baño?","Where is the bathroom?"],["¿Cuánto cuesta?","How much does it cost?"],["Quisiera un café","I would like a coffee"],["Necesito ayuda","I need help"],["Hasta luego","See you later"],["Me encanta la música","I love music"]],
+  travel: [["el aeropuerto","the airport"],["el hotel","the hotel"],["el taxi","the taxi"],["el autobús","the bus"],["la calle","the street"],["izquierda","left"],["derecha","right"],["el boleto","the ticket"]],
+  time: [["hoy","today"],["mañana","tomorrow"],["la mañana","morning"],["la noche","night"],["el día","day"],["la semana","week"],["la hora","hour"],["ahora","now"]]
+} },
+fr: { cats: {
+  greet: [["bonjour","hello"],["au revoir","goodbye"],["s'il vous plaît","please"],["merci","thank you"],["oui","yes"],["non","no"],["excusez-moi","excuse me"],["bonsoir","good evening"],["bonne nuit","good night"],["comment allez-vous ?","how are you"]],
+  nums: [["un","one"],["deux","two"],["trois","three"],["quatre","four"],["cinq","five"],["six","six"],["sept","seven"],["huit","eight"],["neuf","nine"],["dix","ten"]],
+  colors: [["rouge","red"],["bleu","blue"],["vert","green"],["jaune","yellow"],["noir","black"],["blanc","white"],["orange","orange"],["violet","purple"]],
+  family: [["mère","mother"],["père","father"],["sœur","sister"],["frère","brother"],["famille","family"],["ami","friend"],["homme","man"],["femme","woman"]],
+  food: [["eau","water"],["pain","bread"],["café","coffee"],["lait","milk"],["fromage","cheese"],["œuf","egg"],["pomme","apple"],["riz","rice"],["poulet","chicken"],["poisson","fish"]],
+  phrases: [["Je m'appelle","My name is"],["Je viens du Texas","I am from Texas"],["Je ne comprends pas","I don't understand"],["Parlez-vous anglais ?","Do you speak English?"],["Où sont les toilettes ?","Where is the bathroom?"],["Combien ça coûte ?","How much does it cost?"],["Je voudrais un café","I would like a coffee"],["J'ai besoin d'aide","I need help"],["À plus tard","See you later"],["J'adore la musique","I love music"]],
+  travel: [["l'aéroport","the airport"],["l'hôtel","the hotel"],["le taxi","the taxi"],["le bus","the bus"],["la rue","the street"],["à gauche","left"],["à droite","right"],["le billet","the ticket"]],
+  time: [["aujourd'hui","today"],["demain","tomorrow"],["le matin","morning"],["la nuit","night"],["le jour","day"],["la semaine","week"],["l'heure","hour"],["maintenant","now"]]
+} },
+de: { cats: {
+  greet: [["Hallo","hello"],["Auf Wiedersehen","goodbye"],["bitte","please"],["danke","thank you"],["ja","yes"],["nein","no"],["Entschuldigung","excuse me"],["guten Morgen","good morning"],["gute Nacht","good night"],["wie geht es dir?","how are you"]],
+  nums: [["eins","one"],["zwei","two"],["drei","three"],["vier","four"],["fünf","five"],["sechs","six"],["sieben","seven"],["acht","eight"],["neun","nine"],["zehn","ten"]],
+  colors: [["rot","red"],["blau","blue"],["grün","green"],["gelb","yellow"],["schwarz","black"],["weiß","white"],["orange","orange"],["lila","purple"]],
+  family: [["Mutter","mother"],["Vater","father"],["Schwester","sister"],["Bruder","brother"],["Familie","family"],["Freund","friend"],["Mann","man"],["Frau","woman"]],
+  food: [["Wasser","water"],["Brot","bread"],["Kaffee","coffee"],["Milch","milk"],["Käse","cheese"],["Ei","egg"],["Apfel","apple"],["Reis","rice"],["Hähnchen","chicken"],["Fisch","fish"]],
+  phrases: [["Ich heiße","My name is"],["Ich komme aus Texas","I am from Texas"],["Ich verstehe nicht","I don't understand"],["Sprichst du Englisch?","Do you speak English?"],["Wo ist die Toilette?","Where is the bathroom?"],["Wie viel kostet das?","How much does it cost?"],["Ich hätte gern einen Kaffee","I would like a coffee"],["Ich brauche Hilfe","I need help"],["Bis später","See you later"],["Ich liebe Musik","I love music"]],
+  travel: [["der Flughafen","the airport"],["das Hotel","the hotel"],["das Taxi","the taxi"],["der Bus","the bus"],["die Straße","the street"],["links","left"],["rechts","right"],["das Ticket","the ticket"]],
+  time: [["heute","today"],["morgen","tomorrow"],["der Morgen","morning"],["die Nacht","night"],["der Tag","day"],["die Woche","week"],["die Stunde","hour"],["jetzt","now"]]
+} },
+it: { cats: {
+  greet: [["ciao","hello"],["arrivederci","goodbye"],["per favore","please"],["grazie","thank you"],["sì","yes"],["no","no"],["scusi","excuse me"],["buongiorno","good morning"],["buonanotte","good night"],["come stai?","how are you"]],
+  nums: [["uno","one"],["due","two"],["tre","three"],["quattro","four"],["cinque","five"],["sei","six"],["sette","seven"],["otto","eight"],["nove","nine"],["dieci","ten"]],
+  colors: [["rosso","red"],["blu","blue"],["verde","green"],["giallo","yellow"],["nero","black"],["bianco","white"],["arancione","orange"],["viola","purple"]],
+  family: [["madre","mother"],["padre","father"],["sorella","sister"],["fratello","brother"],["famiglia","family"],["amico","friend"],["uomo","man"],["donna","woman"]],
+  food: [["acqua","water"],["pane","bread"],["caffè","coffee"],["latte","milk"],["formaggio","cheese"],["uovo","egg"],["mela","apple"],["riso","rice"],["pollo","chicken"],["pesce","fish"]],
+  phrases: [["Mi chiamo","My name is"],["Vengo dal Texas","I am from Texas"],["Non capisco","I don't understand"],["Parli inglese?","Do you speak English?"],["Dov'è il bagno?","Where is the bathroom?"],["Quanto costa?","How much does it cost?"],["Vorrei un caffè","I would like a coffee"],["Ho bisogno di aiuto","I need help"],["A più tardi","See you later"],["Amo la musica","I love music"]],
+  travel: [["l'aeroporto","the airport"],["l'hotel","the hotel"],["il taxi","the taxi"],["l'autobus","the bus"],["la strada","the street"],["sinistra","left"],["destra","right"],["il biglietto","the ticket"]],
+  time: [["oggi","today"],["domani","tomorrow"],["la mattina","morning"],["la notte","night"],["il giorno","day"],["la settimana","week"],["l'ora","hour"],["adesso","now"]]
+} },
+pt: { cats: {
+  greet: [["olá","hello"],["adeus","goodbye"],["por favor","please"],["obrigado","thank you"],["sim","yes"],["não","no"],["com licença","excuse me"],["bom dia","good morning"],["boa noite","good night"],["como estás?","how are you"]],
+  nums: [["um","one"],["dois","two"],["três","three"],["quatro","four"],["cinco","five"],["seis","six"],["sete","seven"],["oito","eight"],["nove","nine"],["dez","ten"]],
+  colors: [["vermelho","red"],["azul","blue"],["verde","green"],["amarelo","yellow"],["preto","black"],["branco","white"],["laranja","orange"],["roxo","purple"]],
+  family: [["mãe","mother"],["pai","father"],["irmã","sister"],["irmão","brother"],["família","family"],["amigo","friend"],["homem","man"],["mulher","woman"]],
+  food: [["água","water"],["pão","bread"],["café","coffee"],["leite","milk"],["queijo","cheese"],["ovo","egg"],["maçã","apple"],["arroz","rice"],["frango","chicken"],["peixe","fish"]],
+  phrases: [["Chamo-me","My name is"],["Sou do Texas","I am from Texas"],["Não entendo","I don't understand"],["Falas inglês?","Do you speak English?"],["Onde fica a casa de banho?","Where is the bathroom?"],["Quanto custa?","How much does it cost?"],["Queria um café","I would like a coffee"],["Preciso de ajuda","I need help"],["Até logo","See you later"],["Adoro música","I love music"]],
+  travel: [["o aeroporto","the airport"],["o hotel","the hotel"],["o táxi","the taxi"],["o autocarro","the bus"],["a rua","the street"],["esquerda","left"],["direita","right"],["o bilhete","the ticket"]],
+  time: [["hoje","today"],["amanhã","tomorrow"],["a manhã","morning"],["a noite","night"],["o dia","day"],["a semana","week"],["a hora","hour"],["agora","now"]]
+} },
+nl: { cats: {
+  greet: [["hallo","hello"],["tot ziens","goodbye"],["alsjeblieft","please"],["dank je","thank you"],["ja","yes"],["nee","no"],["pardon","excuse me"],["goedemorgen","good morning"],["goedenacht","good night"],["hoe gaat het?","how are you"]],
+  nums: [["een","one"],["twee","two"],["drie","three"],["vier","four"],["vijf","five"],["zes","six"],["zeven","seven"],["acht","eight"],["negen","nine"],["tien","ten"]],
+  colors: [["rood","red"],["blauw","blue"],["groen","green"],["geel","yellow"],["zwart","black"],["wit","white"],["oranje","orange"],["paars","purple"]],
+  family: [["moeder","mother"],["vader","father"],["zus","sister"],["broer","brother"],["familie","family"],["vriend","friend"],["man","man"],["vrouw","woman"]],
+  food: [["water","water"],["brood","bread"],["koffie","coffee"],["melk","milk"],["kaas","cheese"],["ei","egg"],["appel","apple"],["rijst","rice"],["kip","chicken"],["vis","fish"]],
+  phrases: [["Ik heet","My name is"],["Ik kom uit Texas","I am from Texas"],["Ik begrijp het niet","I don't understand"],["Spreek je Engels?","Do you speak English?"],["Waar is het toilet?","Where is the bathroom?"],["Hoeveel kost het?","How much does it cost?"],["Ik wil graag koffie","I would like a coffee"],["Ik heb hulp nodig","I need help"],["Tot later","See you later"],["Ik hou van muziek","I love music"]],
+  travel: [["de luchthaven","the airport"],["het hotel","the hotel"],["de taxi","the taxi"],["de bus","the bus"],["de straat","the street"],["links","left"],["rechts","right"],["het kaartje","the ticket"]],
+  time: [["vandaag","today"],["morgen","tomorrow"],["de ochtend","morning"],["de nacht","night"],["de dag","day"],["de week","week"],["het uur","hour"],["nu","now"]]
+} },
+sv: { cats: {
+  greet: [["hej","hello"],["hej då","goodbye"],["snälla","please"],["tack","thank you"],["ja","yes"],["nej","no"],["ursäkta","excuse me"],["god morgon","good morning"],["god natt","good night"],["hur mår du?","how are you"]],
+  nums: [["ett","one"],["två","two"],["tre","three"],["fyra","four"],["fem","five"],["sex","six"],["sju","seven"],["åtta","eight"],["nio","nine"],["tio","ten"]],
+  colors: [["röd","red"],["blå","blue"],["grön","green"],["gul","yellow"],["svart","black"],["vit","white"],["orange","orange"],["lila","purple"]],
+  family: [["mamma","mother"],["pappa","father"],["syster","sister"],["bror","brother"],["familj","family"],["vän","friend"],["man","man"],["kvinna","woman"]],
+  food: [["vatten","water"],["bröd","bread"],["kaffe","coffee"],["mjölk","milk"],["ost","cheese"],["ägg","egg"],["äpple","apple"],["ris","rice"],["kyckling","chicken"],["fisk","fish"]],
+  phrases: [["Jag heter","My name is"],["Jag kommer från Texas","I am from Texas"],["Jag förstår inte","I don't understand"],["Pratar du engelska?","Do you speak English?"],["Var är toaletten?","Where is the bathroom?"],["Hur mycket kostar det?","How much does it cost?"],["Jag skulle vilja ha en kaffe","I would like a coffee"],["Jag behöver hjälp","I need help"],["Vi ses senare","See you later"],["Jag älskar musik","I love music"]],
+  travel: [["flygplatsen","the airport"],["hotellet","the hotel"],["taxin","the taxi"],["bussen","the bus"],["gatan","the street"],["vänster","left"],["höger","right"],["biljetten","the ticket"]],
+  time: [["idag","today"],["imorgon","tomorrow"],["morgonen","morning"],["natten","night"],["dagen","day"],["veckan","week"],["timmen","hour"],["nu","now"]]
+} },
+no: { cats: {
+  greet: [["hei","hello"],["ha det","goodbye"],["vær så snill","please"],["takk","thank you"],["ja","yes"],["nei","no"],["unnskyld","excuse me"],["god morgen","good morning"],["god natt","good night"],["hvordan har du det?","how are you"]],
+  nums: [["en","one"],["to","two"],["tre","three"],["fire","four"],["fem","five"],["seks","six"],["sju","seven"],["åtte","eight"],["ni","nine"],["ti","ten"]],
+  colors: [["rød","red"],["blå","blue"],["grønn","green"],["gul","yellow"],["svart","black"],["hvit","white"],["oransje","orange"],["lilla","purple"]],
+  family: [["mor","mother"],["far","father"],["søster","sister"],["bror","brother"],["familie","family"],["venn","friend"],["mann","man"],["kvinne","woman"]],
+  food: [["vann","water"],["brød","bread"],["kaffe","coffee"],["melk","milk"],["ost","cheese"],["egg","egg"],["eple","apple"],["ris","rice"],["kylling","chicken"],["fisk","fish"]],
+  phrases: [["Jeg heter","My name is"],["Jeg er fra Texas","I am from Texas"],["Jeg forstår ikke","I don't understand"],["Snakker du engelsk?","Do you speak English?"],["Hvor er toalettet?","Where is the bathroom?"],["Hvor mye koster det?","How much does it cost?"],["Jeg vil gjerne ha en kaffe","I would like a coffee"],["Jeg trenger hjelp","I need help"],["Vi sees senere","See you later"],["Jeg elsker musikk","I love music"]],
+  travel: [["flyplassen","the airport"],["hotellet","the hotel"],["taxien","the taxi"],["bussen","the bus"],["gaten","the street"],["venstre","left"],["høyre","right"],["billetten","the ticket"]],
+  time: [["i dag","today"],["i morgen","tomorrow"],["morgenen","morning"],["natten","night"],["dagen","day"],["uken","week"],["timen","hour"],["nå","now"]]
+} },
+pl: { cats: {
+  greet: [["cześć","hello"],["do widzenia","goodbye"],["proszę","please"],["dziękuję","thank you"],["tak","yes"],["nie","no"],["przepraszam","excuse me"],["dzień dobry","good morning"],["dobranoc","good night"],["jak się masz?","how are you"]],
+  nums: [["jeden","one"],["dwa","two"],["trzy","three"],["cztery","four"],["pięć","five"],["sześć","six"],["siedem","seven"],["osiem","eight"],["dziewięć","nine"],["dziesięć","ten"]],
+  colors: [["czerwony","red"],["niebieski","blue"],["zielony","green"],["żółty","yellow"],["czarny","black"],["biały","white"],["pomarańczowy","orange"],["fioletowy","purple"]],
+  family: [["mama","mother"],["tata","father"],["siostra","sister"],["brat","brother"],["rodzina","family"],["przyjaciel","friend"],["mężczyzna","man"],["kobieta","woman"]],
+  food: [["woda","water"],["chleb","bread"],["kawa","coffee"],["mleko","milk"],["ser","cheese"],["jajko","egg"],["jabłko","apple"],["ryż","rice"],["kurczak","chicken"],["ryba","fish"]],
+  phrases: [["Nazywam się","My name is"],["Jestem z Teksasu","I am from Texas"],["Nie rozumiem","I don't understand"],["Czy mówisz po angielsku?","Do you speak English?"],["Gdzie jest toaleta?","Where is the bathroom?"],["Ile to kosztuje?","How much does it cost?"],["Poproszę kawę","I would like a coffee"],["Potrzebuję pomocy","I need help"],["Do zobaczenia później","See you later"],["Kocham muzykę","I love music"]],
+  travel: [["lotnisko","the airport"],["hotel","the hotel"],["taksówka","the taxi"],["autobus","the bus"],["ulica","the street"],["lewo","left"],["prawo","right"],["bilet","the ticket"]],
+  time: [["dziś","today"],["jutro","tomorrow"],["rano","morning"],["noc","night"],["dzień","day"],["tydzień","week"],["godzina","hour"],["teraz","now"]]
+} },
+ru: { cats: {
+  greet: [["привет","hello","privet"],["до свидания","goodbye","do svidaniya"],["пожалуйста","please","pozhaluysta"],["спасибо","thank you","spasibo"],["да","yes","da"],["нет","no","net"],["извините","excuse me","izvinite"],["доброе утро","good morning","dobroye utro"],["спокойной ночи","good night","spokoynoy nochi"],["как дела?","how are you","kak dela"]],
+  nums: [["один","one","odin"],["два","two","dva"],["три","three","tri"],["четыре","four","chetyre"],["пять","five","pyat"],["шесть","six","shest"],["семь","seven","sem"],["восемь","eight","vosem"],["девять","nine","devyat"],["десять","ten","desyat"]],
+  colors: [["красный","red","krasny"],["синий","blue","siniy"],["зелёный","green","zelyony"],["жёлтый","yellow","zholty"],["чёрный","black","chorny"],["белый","white","bely"],["оранжевый","orange","oranzhevy"],["фиолетовый","purple","fioletovy"]],
+  family: [["мать","mother","mat"],["отец","father","otets"],["сестра","sister","sestra"],["брат","brother","brat"],["семья","family","semya"],["друг","friend","drug"],["мужчина","man","muzhchina"],["женщина","woman","zhenshchina"]],
+  food: [["вода","water","voda"],["хлеб","bread","khleb"],["кофе","coffee","kofe"],["молоко","milk","moloko"],["сыр","cheese","syr"],["яйцо","egg","yaytso"],["яблоко","apple","yabloko"],["рис","rice","ris"],["курица","chicken","kuritsa"],["рыба","fish","ryba"]],
+  phrases: [["Меня зовут","My name is","Menya zovut"],["Я из Техаса","I am from Texas","Ya iz Tekhasa"],["Я не понимаю","I don't understand","Ya ne ponimayu"],["Вы говорите по-английски?","Do you speak English?","Vy govorite po-angliyski"],["Где туалет?","Where is the bathroom?","Gde tualet"],["Сколько это стоит?","How much does it cost?","Skolko eto stoit"],["Я хотел бы кофе","I would like a coffee","Ya khotel by kofe"],["Мне нужна помощь","I need help","Mne nuzhna pomoshch"],["До встречи","See you later","Do vstrechi"],["Я люблю музыку","I love music","Ya lyublyu muzyku"]],
+  travel: [["аэропорт","the airport","aeroport"],["отель","the hotel","otel"],["такси","the taxi","taksi"],["автобус","the bus","avtobus"],["улица","the street","ulitsa"],["налево","left","nalevo"],["направо","right","napravo"],["билет","the ticket","bilet"]],
+  time: [["сегодня","today","segodnya"],["завтра","tomorrow","zavtra"],["утро","morning","utro"],["ночь","night","noch"],["день","day","den"],["неделя","week","nedelya"],["час","hour","chas"],["сейчас","now","seychas"]]
+} },
+uk: { cats: {
+  greet: [["привіт","hello","pryvit"],["до побачення","goodbye","do pobachennya"],["будь ласка","please","bud laska"],["дякую","thank you","dyakuyu"],["так","yes","tak"],["ні","no","ni"],["вибачте","excuse me","vybachte"],["доброго ранку","good morning","dobroho ranku"],["на добраніч","good night","na dobranich"],["як справи?","how are you","yak spravy"]],
+  nums: [["один","one","odyn"],["два","two","dva"],["три","three","try"],["чотири","four","chotyry"],["п'ять","five","pyat"],["шість","six","shist"],["сім","seven","sim"],["вісім","eight","visim"],["дев'ять","nine","devyat"],["десять","ten","desyat"]],
+  colors: [["червоний","red","chervony"],["синій","blue","syniy"],["зелений","green","zeleny"],["жовтий","yellow","zhovty"],["чорний","black","chorny"],["білий","white","bily"],["помаранчевий","orange","pomaranchevy"],["фіолетовий","purple","fioletovy"]],
+  family: [["мати","mother","maty"],["батько","father","batko"],["сестра","sister","sestra"],["брат","brother","brat"],["сім'я","family","simya"],["друг","friend","druh"],["чоловік","man","cholovik"],["жінка","woman","zhinka"]],
+  food: [["вода","water","voda"],["хліб","bread","khlib"],["кава","coffee","kava"],["молоко","milk","moloko"],["сир","cheese","syr"],["яйце","egg","yaytse"],["яблуко","apple","yabluko"],["рис","rice","rys"],["курка","chicken","kurka"],["риба","fish","ryba"]],
+  phrases: [["Мене звати","My name is","Mene zvaty"],["Я з Техасу","I am from Texas","Ya z Tekhasu"],["Я не розумію","I don't understand","Ya ne rozumiyu"],["Ви розмовляєте англійською?","Do you speak English?","Vy rozmovlyayete anhliyskoyu"],["Де туалет?","Where is the bathroom?","De tualet"],["Скільки це коштує?","How much does it cost?","Skilky tse koshtuye"],["Я хотів би кави","I would like a coffee","Ya khotiv by kavy"],["Мені потрібна допомога","I need help","Meni potribna dopomoha"],["До зустрічі","See you later","Do zustrichi"],["Я люблю музику","I love music","Ya lyublyu muzyku"]],
+  travel: [["аеропорт","the airport","aeroport"],["готель","the hotel","hotel"],["таксі","the taxi","taksi"],["автобус","the bus","avtobus"],["вулиця","the street","vulytsya"],["ліворуч","left","livoruch"],["праворуч","right","pravoruch"],["квиток","the ticket","kvytok"]],
+  time: [["сьогодні","today","sohodni"],["завтра","tomorrow","zavtra"],["ранок","morning","ranok"],["ніч","night","nich"],["день","day","den"],["тиждень","week","tyzhden"],["година","hour","hodyna"],["зараз","now","zaraz"]]
+} },
+el: { cats: {
+  greet: [["γεια","hello","yia"],["αντίο","goodbye","adio"],["παρακαλώ","please","parakalo"],["ευχαριστώ","thank you","efharisto"],["ναι","yes","ne"],["όχι","no","ohi"],["συγγνώμη","excuse me","signomi"],["καλημέρα","good morning","kalimera"],["καληνύχτα","good night","kalinihta"],["τι κάνεις;","how are you","ti kanis"]],
+  nums: [["ένα","one","ena"],["δύο","two","dio"],["τρία","three","tria"],["τέσσερα","four","tessera"],["πέντε","five","pende"],["έξι","six","exi"],["εφτά","seven","efta"],["οχτώ","eight","ohto"],["εννιά","nine","ennia"],["δέκα","ten","deka"]],
+  colors: [["κόκκινο","red","kokkino"],["μπλε","blue","ble"],["πράσινο","green","prasino"],["κίτρινο","yellow","kitrino"],["μαύρο","black","mavro"],["άσπρο","white","aspro"],["πορτοκαλί","orange","portokali"],["μωβ","purple","mov"]],
+  family: [["μητέρα","mother","mitera"],["πατέρας","father","pateras"],["αδερφή","sister","aderfi"],["αδερφός","brother","aderfos"],["οικογένεια","family","ikogenia"],["φίλος","friend","filos"],["άντρας","man","andras"],["γυναίκα","woman","yineka"]],
+  food: [["νερό","water","nero"],["ψωμί","bread","psomi"],["καφές","coffee","kafes"],["γάλα","milk","gala"],["τυρί","cheese","tiri"],["αυγό","egg","avgo"],["μήλο","apple","milo"],["ρύζι","rice","rizi"],["κοτόπουλο","chicken","kotopoulo"],["ψάρι","fish","psari"]],
+  phrases: [["Με λένε","My name is","Me lene"],["Είμαι από το Τέξας","I am from Texas","Ime apo to Texas"],["Δεν καταλαβαίνω","I don't understand","Den katalaveno"],["Μιλάτε αγγλικά;","Do you speak English?","Milate anglika"],["Πού είναι η τουαλέτα;","Where is the bathroom?","Pou ine i toualeta"],["Πόσο κοστίζει;","How much does it cost?","Poso kostizi"],["Θα ήθελα έναν καφέ","I would like a coffee","Tha ithela enan kafe"],["Χρειάζομαι βοήθεια","I need help","Hriazome voithia"],["Τα λέμε αργότερα","See you later","Ta leme argotera"],["Αγαπώ τη μουσική","I love music","Agapo ti mousiki"]],
+  travel: [["το αεροδρόμιο","the airport","to aerodromio"],["το ξενοδοχείο","the hotel","to xenodohio"],["το ταξί","the taxi","to taxi"],["το λεωφορείο","the bus","to leoforio"],["ο δρόμος","the street","o dromos"],["αριστερά","left","aristera"],["δεξιά","right","dexia"],["το εισιτήριο","the ticket","to isitirio"]],
+  time: [["σήμερα","today","simera"],["αύριο","tomorrow","avrio"],["το πρωί","morning","to proi"],["η νύχτα","night","i nihta"],["η μέρα","day","i mera"],["η εβδομάδα","week","i evdomada"],["η ώρα","hour","i ora"],["τώρα","now","tora"]]
+} },
+tr: { cats: {
+  greet: [["merhaba","hello"],["hoşça kal","goodbye"],["lütfen","please"],["teşekkür ederim","thank you"],["evet","yes"],["hayır","no"],["affedersiniz","excuse me"],["günaydın","good morning"],["iyi geceler","good night"],["nasılsın?","how are you"]],
+  nums: [["bir","one"],["iki","two"],["üç","three"],["dört","four"],["beş","five"],["altı","six"],["yedi","seven"],["sekiz","eight"],["dokuz","nine"],["on","ten"]],
+  colors: [["kırmızı","red"],["mavi","blue"],["yeşil","green"],["sarı","yellow"],["siyah","black"],["beyaz","white"],["turuncu","orange"],["mor","purple"]],
+  family: [["anne","mother"],["baba","father"],["kız kardeş","sister"],["erkek kardeş","brother"],["aile","family"],["arkadaş","friend"],["adam","man"],["kadın","woman"]],
+  food: [["su","water"],["ekmek","bread"],["kahve","coffee"],["süt","milk"],["peynir","cheese"],["yumurta","egg"],["elma","apple"],["pirinç","rice"],["tavuk","chicken"],["balık","fish"]],
+  phrases: [["Benim adım","My name is"],["Teksaslıyım","I am from Texas"],["Anlamıyorum","I don't understand"],["İngilizce biliyor musunuz?","Do you speak English?"],["Tuvalet nerede?","Where is the bathroom?"],["Bu ne kadar?","How much does it cost?"],["Bir kahve istiyorum","I would like a coffee"],["Yardıma ihtiyacım var","I need help"],["Görüşürüz","See you later"],["Müziği seviyorum","I love music"]],
+  travel: [["havaalanı","the airport"],["otel","the hotel"],["taksi","the taxi"],["otobüs","the bus"],["sokak","the street"],["sol","left"],["sağ","right"],["bilet","the ticket"]],
+  time: [["bugün","today"],["yarın","tomorrow"],["sabah","morning"],["gece","night"],["gün","day"],["hafta","week"],["saat","hour"],["şimdi","now"]]
+} },
+ar: { cats: {
+  greet: [["مرحبا","hello","marhaba"],["إلى اللقاء","goodbye","ila al-liqa"],["من فضلك","please","min fadlik"],["شكرا","thank you","shukran"],["نعم","yes","na'am"],["لا","no","la"],["عفوا","excuse me","afwan"],["صباح الخير","good morning","sabah al-khayr"],["تصبح على خير","good night","tusbih ala khayr"],["كيف حالك؟","how are you","kayfa haluk"]],
+  nums: [["واحد","one","wahid"],["اثنان","two","ithnan"],["ثلاثة","three","thalatha"],["أربعة","four","arba'a"],["خمسة","five","khamsa"],["ستة","six","sitta"],["سبعة","seven","sab'a"],["ثمانية","eight","thamaniya"],["تسعة","nine","tis'a"],["عشرة","ten","ashara"]],
+  colors: [["أحمر","red","ahmar"],["أزرق","blue","azraq"],["أخضر","green","akhdar"],["أصفر","yellow","asfar"],["أسود","black","aswad"],["أبيض","white","abyad"],["برتقالي","orange","burtuqali"],["بنفسجي","purple","banafsaji"]],
+  family: [["أم","mother","umm"],["أب","father","ab"],["أخت","sister","ukht"],["أخ","brother","akh"],["عائلة","family","a'ila"],["صديق","friend","sadiq"],["رجل","man","rajul"],["امرأة","woman","imra'a"]],
+  food: [["ماء","water","ma'"],["خبز","bread","khubz"],["قهوة","coffee","qahwa"],["حليب","milk","halib"],["جبن","cheese","jubn"],["بيض","egg","bayd"],["تفاح","apple","tuffah"],["أرز","rice","aruzz"],["دجاج","chicken","dajaj"],["سمك","fish","samak"]],
+  phrases: [["اسمي","My name is","ismi"],["أنا من تكساس","I am from Texas","ana min Teksas"],["لا أفهم","I don't understand","la afham"],["هل تتكلم الإنجليزية؟","Do you speak English?","hal tatakallam al-ingliziyya"],["أين الحمام؟","Where is the bathroom?","ayna al-hammam"],["كم سعر هذا؟","How much does it cost?","kam si'r hadha"],["أريد قهوة","I would like a coffee","urid qahwa"],["أحتاج مساعدة","I need help","ahtaj musa'ada"],["أراك لاحقا","See you later","arak lahiqan"],["أحب الموسيقى","I love music","uhibb al-musiqa"]],
+  travel: [["المطار","the airport","al-matar"],["الفندق","the hotel","al-funduq"],["سيارة أجرة","the taxi","sayyarat ujra"],["الحافلة","the bus","al-hafila"],["الشارع","the street","ash-shari'"],["يسار","left","yasar"],["يمين","right","yamin"],["تذكرة","the ticket","tadhkira"]],
+  time: [["اليوم","today","al-yawm"],["غدا","tomorrow","ghadan"],["الصباح","morning","as-sabah"],["الليل","night","al-layl"],["النهار","day","an-nahar"],["الأسبوع","week","al-usbu'"],["الساعة","hour","as-sa'a"],["الآن","now","al-aan"]]
+} },
+hi: { cats: {
+  greet: [["नमस्ते","hello","namaste"],["अलविदा","goodbye","alvida"],["कृपया","please","kripaya"],["धन्यवाद","thank you","dhanyavaad"],["हाँ","yes","haan"],["नहीं","no","nahin"],["माफ़ कीजिए","excuse me","maaf kijiye"],["शुभ प्रभात","good morning","shubh prabhaat"],["शुभ रात्रि","good night","shubh raatri"],["आप कैसे हैं?","how are you","aap kaise hain"]],
+  nums: [["एक","one","ek"],["दो","two","do"],["तीन","three","teen"],["चार","four","chaar"],["पाँच","five","paanch"],["छह","six","chhah"],["सात","seven","saat"],["आठ","eight","aath"],["नौ","nine","nau"],["दस","ten","das"]],
+  colors: [["लाल","red","laal"],["नीला","blue","neela"],["हरा","green","hara"],["पीला","yellow","peela"],["काला","black","kaala"],["सफ़ेद","white","safed"],["नारंगी","orange","naarangi"],["बैंगनी","purple","baingani"]],
+  family: [["माँ","mother","maa"],["पिता","father","pita"],["बहन","sister","bahan"],["भाई","brother","bhai"],["परिवार","family","parivaar"],["दोस्त","friend","dost"],["आदमी","man","aadmi"],["औरत","woman","aurat"]],
+  food: [["पानी","water","paani"],["रोटी","bread","roti"],["कॉफ़ी","coffee","coffee"],["दूध","milk","doodh"],["पनीर","cheese","paneer"],["अंडा","egg","anda"],["सेब","apple","seb"],["चावल","rice","chaawal"],["चिकन","chicken","chicken"],["मछली","fish","machhli"]],
+  phrases: [["मेरा नाम है","My name is","mera naam hai"],["मैं टेक्सस से हूँ","I am from Texas","main Texas se hoon"],["मैं समझ नहीं पाया","I don't understand","main samajh nahin paaya"],["क्या आप अंग्रेज़ी बोलते हैं?","Do you speak English?","kya aap angrezi bolte hain"],["बाथरूम कहाँ है?","Where is the bathroom?","bathroom kahaan hai"],["यह कितने का है?","How much does it cost?","yah kitne ka hai"],["मुझे एक कॉफ़ी चाहिए","I would like a coffee","mujhe ek coffee chaahiye"],["मुझे मदद चाहिए","I need help","mujhe madad chaahiye"],["फिर मिलेंगे","See you later","phir milenge"],["मुझे संगीत बहुत पसंद है","I love music","mujhe sangeet bahut pasand hai"]],
+  travel: [["हवाई अड्डा","the airport","havaai adda"],["होटल","the hotel","hotel"],["टैक्सी","the taxi","taxi"],["बस","the bus","bas"],["सड़क","the street","sadak"],["बाएँ","left","baayen"],["दाएँ","right","daayen"],["टिकट","the ticket","tikat"]],
+  time: [["आज","today","aaj"],["कल","tomorrow","kal"],["सुबह","morning","subah"],["रात","night","raat"],["दिन","day","din"],["सप्ताह","week","saptaah"],["घंटा","hour","ghanta"],["अब","now","ab"]]
+} },
+ja: { cats: {
+  greet: [["こんにちは","hello","konnichiwa"],["さようなら","goodbye","sayounara"],["お願いします","please","onegaishimasu"],["ありがとう","thank you","arigatou"],["はい","yes","hai"],["いいえ","no","iie"],["すみません","excuse me","sumimasen"],["おはようございます","good morning","ohayou gozaimasu"],["おやすみなさい","good night","oyasuminasai"],["元気ですか","how are you","genki desu ka"]],
+  nums: [["いち","one","ichi"],["に","two","ni"],["さん","three","san"],["よん","four","yon"],["ご","five","go"],["ろく","six","roku"],["なな","seven","nana"],["はち","eight","hachi"],["きゅう","nine","kyuu"],["じゅう","ten","juu"]],
+  colors: [["あか","red","aka"],["あお","blue","ao"],["みどり","green","midori"],["きいろ","yellow","kiiro"],["くろ","black","kuro"],["しろ","white","shiro"],["オレンジ","orange","orenji"],["むらさき","purple","murasaki"]],
+  family: [["お母さん","mother","okaasan"],["お父さん","father","otousan"],["お姉さん","sister","oneesan"],["お兄さん","brother","oniisan"],["家族","family","kazoku"],["友達","friend","tomodachi"],["男の人","man","otoko no hito"],["女の人","woman","onna no hito"]],
+  food: [["水","water","mizu"],["パン","bread","pan"],["コーヒー","coffee","koohii"],["牛乳","milk","gyuunyuu"],["チーズ","cheese","chiizu"],["卵","egg","tamago"],["りんご","apple","ringo"],["ご飯","rice","gohan"],["鶏肉","chicken","toriniku"],["魚","fish","sakana"]],
+  phrases: [["私の名前は","My name is","watashi no namae wa"],["テキサスから来ました","I am from Texas","Tekisasu kara kimashita"],["わかりません","I don't understand","wakarimasen"],["英語を話せますか","Do you speak English?","Eigo o hanasemasu ka"],["トイレはどこですか","Where is the bathroom?","toire wa doko desu ka"],["いくらですか","How much does it cost?","ikura desu ka"],["コーヒーをください","I would like a coffee","koohii o kudasai"],["助けてください","I need help","tasukete kudasai"],["また後で","See you later","mata ato de"],["音楽が大好きです","I love music","ongaku ga daisuki desu"]],
+  travel: [["空港","the airport","kuukou"],["ホテル","the hotel","hoteru"],["タクシー","the taxi","takushii"],["バス","the bus","basu"],["通り","the street","toori"],["左","left","hidari"],["右","right","migi"],["切符","the ticket","kippu"]],
+  time: [["今日","today","kyou"],["明日","tomorrow","ashita"],["朝","morning","asa"],["夜","night","yoru"],["日","day","hi"],["週","week","shuu"],["時間","hour","jikan"],["今","now","ima"]]
+} },
+ko: { cats: {
+  greet: [["안녕하세요","hello","annyeonghaseyo"],["안녕히 가세요","goodbye","annyeonghi gaseyo"],["주세요","please","juseyo"],["감사합니다","thank you","gamsahamnida"],["네","yes","ne"],["아니요","no","aniyo"],["실례합니다","excuse me","sillyehamnida"],["좋은 아침이에요","good morning","joeun achimieyo"],["안녕히 주무세요","good night","annyeonghi jumuseyo"],["어떻게 지내세요","how are you","eotteoke jinaeseyo"]],
+  nums: [["하나","one","hana"],["둘","two","dul"],["셋","three","set"],["넷","four","net"],["다섯","five","daseot"],["여섯","six","yeoseot"],["일곱","seven","ilgop"],["여덟","eight","yeodeol"],["아홉","nine","ahop"],["열","ten","yeol"]],
+  colors: [["빨간색","red","ppalgansaek"],["파란색","blue","paransaek"],["초록색","green","choroksaek"],["노란색","yellow","noransaek"],["검은색","black","geomeunsaek"],["흰색","white","huinsaek"],["주황색","orange","juhwangsaek"],["보라색","purple","borasaek"]],
+  family: [["어머니","mother","eomeoni"],["아버지","father","abeoji"],["누나","sister","nuna"],["형","brother","hyeong"],["가족","family","gajok"],["친구","friend","chingu"],["남자","man","namja"],["여자","woman","yeoja"]],
+  food: [["물","water","mul"],["빵","bread","ppang"],["커피","coffee","keopi"],["우유","milk","uyu"],["치즈","cheese","chijeu"],["달걀","egg","dalgyal"],["사과","apple","sagwa"],["밥","rice","bap"],["닭고기","chicken","dakgogi"],["생선","fish","saengseon"]],
+  phrases: [["제 이름은","My name is","je ireumeun"],["저는 텍사스에서 왔어요","I am from Texas","jeoneun Teksaseueseo wasseoyo"],["이해가 안 돼요","I don't understand","ihaega an dwaeyo"],["영어 하세요?","Do you speak English?","yeongeo haseyo"],["화장실이 어디예요?","Where is the bathroom?","hwajangsiri eodiyeyo"],["얼마예요?","How much does it cost?","eolmayeyo"],["커피 한 잔 주세요","I would like a coffee","keopi han jan juseyo"],["도움이 필요해요","I need help","doumi piryohaeyo"],["나중에 봐요","See you later","najunge bwayo"],["음악을 정말 좋아해요","I love music","eumageul jeongmal joahaeyo"]],
+  travel: [["공항","the airport","gonghang"],["호텔","the hotel","hotel"],["택시","the taxi","taeksi"],["버스","the bus","beoseu"],["거리","the street","geori"],["왼쪽","left","oenjjok"],["오른쪽","right","oreunjjok"],["표","the ticket","pyo"]],
+  time: [["오늘","today","oneul"],["내일","tomorrow","naeil"],["아침","morning","achim"],["밤","night","bam"],["날","day","nal"],["주","week","ju"],["시간","hour","sigan"],["지금","now","jigeum"]]
+} },
+zh: { cats: {
+  greet: [["你好","hello","nǐ hǎo"],["再见","goodbye","zài jiàn"],["请","please","qǐng"],["谢谢","thank you","xiè xie"],["是的","yes","shì de"],["不","no","bù"],["对不起","excuse me","duì bu qǐ"],["早上好","good morning","zǎo shang hǎo"],["晚安","good night","wǎn ān"],["你好吗","how are you","nǐ hǎo ma"]],
+  nums: [["一","one","yī"],["二","two","èr"],["三","three","sān"],["四","four","sì"],["五","five","wǔ"],["六","six","liù"],["七","seven","qī"],["八","eight","bā"],["九","nine","jiǔ"],["十","ten","shí"]],
+  colors: [["红色","red","hóng sè"],["蓝色","blue","lán sè"],["绿色","green","lǜ sè"],["黄色","yellow","huáng sè"],["黑色","black","hēi sè"],["白色","white","bái sè"],["橙色","orange","chéng sè"],["紫色","purple","zǐ sè"]],
+  family: [["妈妈","mother","mā ma"],["爸爸","father","bà ba"],["姐姐","sister","jiě jie"],["哥哥","brother","gē ge"],["家人","family","jiā rén"],["朋友","friend","péng you"],["男人","man","nán rén"],["女人","woman","nǚ rén"]],
+  food: [["水","water","shuǐ"],["面包","bread","miàn bāo"],["咖啡","coffee","kā fēi"],["牛奶","milk","niú nǎi"],["奶酪","cheese","nǎi lào"],["鸡蛋","egg","jī dàn"],["苹果","apple","píng guǒ"],["米饭","rice","mǐ fàn"],["鸡肉","chicken","jī ròu"],["鱼","fish","yú"]],
+  phrases: [["我的名字是","My name is","wǒ de míng zi shì"],["我来自德克萨斯","I am from Texas","wǒ lái zì Dékèsàsī"],["我不懂","I don't understand","wǒ bù dǒng"],["你会说英语吗","Do you speak English?","nǐ huì shuō yīng yǔ ma"],["洗手间在哪儿","Where is the bathroom?","xǐ shǒu jiān zài nǎr"],["多少钱","How much does it cost?","duō shao qián"],["我想要一杯咖啡","I would like a coffee","wǒ xiǎng yào yì bēi kā fēi"],["我需要帮助","I need help","wǒ xū yào bāng zhù"],["回头见","See you later","huí tóu jiàn"],["我爱音乐","I love music","wǒ ài yīn yuè"]],
+  travel: [["机场","the airport","jī chǎng"],["酒店","the hotel","jiǔ diàn"],["出租车","the taxi","chū zū chē"],["公共汽车","the bus","gōng gòng qì chē"],["街道","the street","jiē dào"],["左边","left","zuǒ bian"],["右边","right","yòu bian"],["票","the ticket","piào"]],
+  time: [["今天","today","jīn tiān"],["明天","tomorrow","míng tiān"],["早上","morning","zǎo shang"],["晚上","night","wǎn shang"],["天","day","tiān"],["星期","week","xīng qī"],["小时","hour","xiǎo shí"],["现在","now","xiàn zài"]]
+} }
+};
+</script>
+<script>
+"use strict";
+/* ---------------- Init ---------------- */
+$("langPickBtn").textContent = curLang().name;
+rollDay();
+show("learn");
+try {
+  if(sbTokens() && !sbUser()) fetchUserInfo(function(){ cloudDownload(function(changed){ if(changed) show("learn"); }); });
+  else if(sbTokens()) cloudDownload(function(changed){ if(changed) show("learn"); });
+} catch(e){}
+</script>
+</div>
+</body>
+</html>
+</script>
+</div>
+</body>
+</html>
