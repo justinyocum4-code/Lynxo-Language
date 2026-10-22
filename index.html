@@ -93,8 +93,8 @@ a{ color:var(--gold); }
 
 <script>
 "use strict";
-var APP_VERSION_NAME = "1.0.0";
-var APP_VERSION_CODE = 1;
+var APP_VERSION_NAME = "1.0.1";
+var APP_VERSION_CODE = 2;
 var REPO = "justinyocum4-code/Lynxo-Language";
 var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
 var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
@@ -111,10 +111,87 @@ function say(text){
   try { if(window.LynxosTts && LynxosTts.speak) { LynxosTts.speak(String(text)); return; } } catch(e){}
   try { var u = new SpeechSynthesisUtterance(String(text)); speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
 }
+/* Foreign-language speech: stream the pronunciation from a free web voice first
+   (works for every language, even when the phone has no voice downloaded for it),
+   and fall back to the phone's built-in voice when the web voice can't play. */
+var _webAudio = null;
+var _webQueue = [];
+var _webPlaying = false;
+var _lastSpeechNoteAt = 0;
+function webTtsCode(tts){
+  var b = String(tts || "en-US").split("-")[0].toLowerCase();
+  if(b === "nb") return "no";
+  if(b === "zh") return "zh-CN";
+  return b;
+}
+function stopWebAudio(){
+  _webQueue = []; _webPlaying = false;
+  if(_webAudio){ try { _webAudio.pause(); } catch(e){} _webAudio = null; }
+}
+function speechNote(msg){
+  try {
+    var d = $("speechNote");
+    if(!d){ d = document.createElement("div"); d.id = "speechNote";
+      d.style.cssText = "position:fixed;left:12px;right:12px;bottom:86px;z-index:60;background:#1c1c1c;color:#ffd94d;border:1px solid #ffd94d;border-radius:12px;padding:12px 14px;font-size:16px;text-align:center;";
+      document.body.appendChild(d);
+    }
+    d.textContent = msg; d.style.display = "block";
+    clearTimeout(d._hideT); d._hideT = setTimeout(function(){ d.style.display = "none"; }, 7000);
+  } catch(e){}
+  say(msg);
+}
+function playWebQueue(){
+  if(_webPlaying) return;
+  var job = _webQueue.shift();
+  if(!job) return;
+  _webPlaying = true;
+  var a = new Audio(job.url);
+  _webAudio = a;
+  try { a.playbackRate = job.rate; } catch(e){}
+  var settled = false;
+  var done = function(ok){
+    if(settled) return; settled = true;
+    if(_webAudio === a) _webAudio = null;
+    _webPlaying = false;
+    if(!ok && job.fallback) job.fallback();
+    playWebQueue();
+  };
+  a.onended = function(){ done(true); };
+  a.onerror = function(){ done(false); };
+  var p = null;
+  try { p = a.play(); } catch(e){ done(false); return; }
+  if(p && p.catch) p.catch(function(){ done(false); });
+}
 function speakLang(text, lang, rate, queue){
   var r = rate || (state.settings.rate || 1);
-  try { if(window.LynxosTts && LynxosTts.speakAs) { LynxosTts.speakAs(String(text), lang || curLang().tts, r, !!queue); return; } } catch(e){}
-  try { var u = new SpeechSynthesisUtterance(String(text)); u.lang = lang || curLang().tts; u.rate = r; if(!queue) speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+  var tts = lang || curLang().tts;
+  var nativeFn = function(){
+    try { if(window.LynxosTts && LynxosTts.speakAs) { LynxosTts.speakAs(String(text), tts, r, !!queue); return; } } catch(e){}
+    try { var u = new SpeechSynthesisUtterance(String(text)); u.lang = tts; u.rate = r; if(!queue) speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+  };
+  if(!queue){
+    stopWebAudio();
+    try { if(window.LynxosTts && LynxosTts.stop) LynxosTts.stop(); } catch(e){}
+    try { speechSynthesis.cancel(); } catch(e){}
+  }
+  var code = webTtsCode(tts);
+  var chunks = [];
+  var s = String(text);
+  while(s.length > 180){ var cut = s.lastIndexOf(" ", 180); if(cut < 40) cut = 180; chunks.push(s.slice(0, cut)); s = s.slice(cut).trim(); }
+  if(s) chunks.push(s);
+  var failed = false;
+  chunks.forEach(function(c, i){
+    var url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=" + encodeURIComponent(code) + "&q=" + encodeURIComponent(c);
+    _webQueue.push({ url: url, rate: r, fallback: (i === 0) ? function(){
+      if(failed) return; failed = true;
+      if(Date.now() - _lastSpeechNoteAt > 60000){
+        _lastSpeechNoteAt = Date.now();
+        speechNote("I could not play that pronunciation out loud. Check your internet connection, or download the voice for this language in your phone's text-to-speech settings.");
+      }
+      nativeFn();
+    } : null });
+  });
+  playWebQueue();
 }
 var _sttCb = null;
 function listenLang(lang, cb){
@@ -586,6 +663,7 @@ function renderPractice(){
 var _audioTimers = [];
 function stopAudioLesson(){
   _audioTimers.forEach(function(t){ clearTimeout(t); }); _audioTimers = [];
+  stopWebAudio();
   try { if(window.LynxosTts && LynxosTts.stop) LynxosTts.stop(); } catch(e){}
   try { speechSynthesis.cancel(); } catch(e){}
 }
