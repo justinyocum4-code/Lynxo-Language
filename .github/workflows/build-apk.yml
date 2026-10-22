@@ -1,1 +1,552 @@
-placeholder
+name: Build APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name (e.g. 1.0.0)'
+        required: false
+        default: '1.0.0'
+      version_code:
+        description: 'Version code (whole number, bump every build)'
+        required: false
+        default: '1'
+      release_notes:
+        description: 'Release notes'
+        required: false
+        default: 'First release'
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK packages
+        run: |
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          if ! command -v sdkmanager >/dev/null 2>&1; then
+            export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
+          fi
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Scaffold Android project
+        env:
+          APP_VERSION_NAME: ${{ inputs.version_name }}
+          APP_VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          echo "=== Files in repo ==="
+          ls -la
+          HTML_FILE=./index.html
+          if [ ! -f "$HTML_FILE" ]; then
+            echo "ERROR: index.html was not found in the repository root."
+            exit 1
+          fi
+          echo "Using $HTML_FILE as the app page."
+          if ! grep -q 'id="lynxo-language-app"' "$HTML_FILE"; then
+            echo "ERROR: $HTML_FILE is not the Lynxo Language Learning app file (lynxo-language-app marker missing)."
+            exit 1
+          fi
+
+          mkdir -p app/src/main/java/com/lynxolanguage/app app/src/main/assets/www app/src/main/res/xml
+          cp "$HTML_FILE" app/src/main/assets/www/index.html
+
+          # TV (Leanback) banner so the app shows in the TV launcher row.
+          mkdir -p app/src/main/res/drawable
+          if [ -f tv_banner.png ]; then
+            cp tv_banner.png app/src/main/res/drawable/tv_banner.png
+            echo "TV banner copied from repo."
+          else
+            pip install --quiet pillow
+            python3 - <<'PYEOF'
+          from PIL import Image, ImageDraw
+          img = Image.new("RGB", (320, 180), (0, 0, 0))
+          d = ImageDraw.Draw(img)
+          d.rectangle([4, 4, 315, 175], outline=(245, 197, 24), width=6)
+          d.text((30, 55), "LYNXO", fill=(245, 197, 24))
+          d.text((30, 92), "LANGUAGE", fill=(255, 255, 255))
+          d.text((30, 122), "LEARNING", fill=(255, 255, 255))
+          img.save("app/src/main/res/drawable/tv_banner.png")
+          print("TV banner generated.")
+          PYEOF
+          fi
+
+          cat > app/src/main/res/xml/file_paths.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <paths>
+              <external-files-path name="updates" path="updates/" />
+          </paths>
+          EOF
+
+          cat > gradle.properties <<'EOF'
+          android.useAndroidX=true
+          EOF
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "LynxoLanguage"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.5.2' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+          android {
+              namespace 'com.lynxolanguage.app'
+              compileSdk 34
+              defaultConfig {
+                  applicationId 'com.lynxolanguage.app'
+                  minSdk 24
+                  targetSdk 34
+                  versionCode __APP_VERSION_CODE__
+                  versionName '__APP_VERSION_NAME__'
+              }
+          }
+          dependencies {
+              /* FileProvider for the in-app updater. */
+              implementation 'androidx.core:core:1.12.0'
+          }
+          EOF
+          sed -i "s/__APP_VERSION_CODE__/$APP_VERSION_CODE/g; s/__APP_VERSION_NAME__/$APP_VERSION_NAME/g" app/build.gradle
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.RECORD_AUDIO" />
+              <uses-permission android:name="android.permission.WAKE_LOCK" />
+              <!-- In-app updater needs to install APK packages -->
+              <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+              <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+              <uses-feature android:name="android.hardware.microphone" android:required="false" />
+              <uses-feature android:name="android.software.leanback" android:required="false" />
+              <application
+                  android:label="Lynxo Language Learning"
+                  android:banner="@drawable/tv_banner"
+                  android:theme="@android:style/Theme.Material.NoActionBar">
+                  <activity
+                      android:name="com.lynxolanguage.app.MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTask"
+                      android:windowSoftInputMode="adjustResize"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                      </intent-filter>
+                      <!-- OAuth deep link for Google sign-in -->
+                      <intent-filter>
+                          <action android:name="android.intent.action.VIEW" />
+                          <category android:name="android.intent.category.DEFAULT" />
+                          <category android:name="android.intent.category.BROWSABLE" />
+                          <data android:scheme="com.lynxolanguage.app" android:host="auth-callback" />
+                      </intent-filter>
+                  </activity>
+                  <!-- FileProvider for the in-app updater's APK install -->
+                  <provider
+                      android:name="androidx.core.content.FileProvider"
+                      android:authorities="com.lynxolanguage.app.fileprovider"
+                      android:exported="false"
+                      android:grantUriPermissions="true">
+                      <meta-data
+                          android:name="android.support.FILE_PROVIDER_PATHS"
+                          android:resource="@xml/file_paths" />
+                  </provider>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/lynxolanguage/app/MainActivity.java <<'EOF'
+          package com.lynxolanguage.app;
+
+          import android.Manifest;
+          import android.app.Activity;
+          import android.content.Intent;
+          import android.content.pm.PackageManager;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.speech.RecognitionListener;
+          import android.speech.RecognizerIntent;
+          import android.speech.SpeechRecognizer;
+          import android.speech.tts.TextToSpeech;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.ValueCallback;
+          import android.webkit.WebResourceRequest;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import java.util.ArrayList;
+          import java.util.Locale;
+
+          public class MainActivity extends Activity {
+              private WebView webView;
+              private TextToSpeech tts;
+              private boolean ttsReady = false;
+              private SpeechRecognizer recognizer;
+              private boolean backArmed = false;
+              private String pendingAuthUrl = null;
+              private boolean pageReady = false;
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  Uri data = getIntent() != null ? getIntent().getData() : null;
+                  if (data != null && "com.lynxolanguage.app".equals(data.getScheme())) {
+                      pendingAuthUrl = data.toString();
+                  }
+                  webView = new WebView(this);
+                  webView.setBackgroundColor(0xFF000000);
+                  WebSettings s = webView.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setMediaPlaybackRequiresUserGesture(false);
+                  s.setAllowFileAccess(true);
+                  s.setAllowFileAccessFromFileURLs(true);
+                  s.setAllowUniversalAccessFromFileURLs(true);
+                  webView.setWebViewClient(new WebViewClient() {
+                      @Override
+                      public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                          if (request.isForMainFrame()) {
+                              String url = request.getUrl().toString();
+                              /* Google blocks OAuth inside WebViews: send sign-in
+                                 to the real browser, like Lynxos Music does. */
+                              if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
+                                  try {
+                                      Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                      view.getContext().startActivity(i);
+                                  } catch (Exception ignored) {}
+                                  return true;
+                              }
+                          }
+                          return false;
+                      }
+                      @Override
+                      public void onPageFinished(WebView view, String url) {
+                          pageReady = true;
+                          if (pendingAuthUrl != null) {
+                              final String u = pendingAuthUrl; pendingAuthUrl = null;
+                              forwardAuth(u);
+                          }
+                      }
+                  });
+                  tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+                      @Override
+                      public void onInit(int status) {
+                          if (status == TextToSpeech.SUCCESS) {
+                              try {
+                                  int result = tts.setLanguage(Locale.US);
+                                  ttsReady = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED;
+                              } catch (Exception e) { ttsReady = false; }
+                          }
+                      }
+                  });
+                  webView.addJavascriptInterface(new TtsBridge(), "LynxosTts");
+                  webView.addJavascriptInterface(new SttBridge(), "LynxosStt");
+                  webView.addJavascriptInterface(new UpdateBridge(), "LynxosUpdater");
+                  setContentView(webView);
+                  webView.loadUrl("file:///android_asset/www/index.html");
+              }
+
+              private void forwardAuth(final String url) {
+                  final String escaped = url.replace("\\", "\\\\").replace("'", "\\'");
+                  webView.post(new Runnable() {
+                      @Override public void run() {
+                          webView.evaluateJavascript(
+                              "(function(){ try { if (window.handleAuthCallback) window.handleAuthCallback('" + escaped + "'); } catch(e){} })()",
+                              null);
+                      }
+                  });
+              }
+
+              @Override
+              protected void onNewIntent(Intent intent) {
+                  super.onNewIntent(intent);
+                  setIntent(intent);
+                  try {
+                      Uri uri = intent.getData();
+                      if (uri != null && "com.lynxolanguage.app".equals(uri.getScheme())) {
+                          if (pageReady) forwardAuth(uri.toString());
+                          else pendingAuthUrl = uri.toString();
+                      }
+                  } catch (Exception ignored) {}
+              }
+
+              /* Do not parcel WebView state (a large state bundle crashed the
+                 file picker in Lynxos Music with TransactionTooLargeException). */
+              @Override
+              protected void onSaveInstanceState(Bundle outState) {
+                  super.onSaveInstanceState(outState);
+                  try { outState.clear(); } catch (Exception ignored) {}
+              }
+
+              public class TtsBridge {
+                  @JavascriptInterface
+                  public void speak(final String text) {
+                      if (text == null) return;
+                      runOnUiThread(new Runnable() {
+                          @Override public void run() {
+                              if (ttsReady && tts != null) {
+                                  try {
+                                      tts.setLanguage(Locale.US);
+                                      tts.setSpeechRate(1.0f);
+                                      tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ll-tts");
+                                  } catch (Exception ignored) {}
+                              }
+                          }
+                      });
+                  }
+                  @JavascriptInterface
+                  public void speakAs(final String text, final String lang, final double rate, final boolean queue) {
+                      if (text == null) return;
+                      runOnUiThread(new Runnable() {
+                          @Override public void run() {
+                              if (ttsReady && tts != null) {
+                                  try {
+                                      Locale loc = (lang == null || lang.isEmpty()) ? Locale.US : Locale.forLanguageTag(lang);
+                                      tts.setLanguage(loc);
+                                      tts.setSpeechRate((float) rate);
+                                      tts.speak(text, queue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, null, "ll-tts-lang");
+                                  } catch (Exception ignored) {}
+                              }
+                          }
+                      });
+                  }
+                  @JavascriptInterface
+                  public void stop() {
+                      runOnUiThread(new Runnable() {
+                          @Override public void run() {
+                              try { if (tts != null) tts.stop(); } catch (Exception ignored) {}
+                          }
+                      });
+                  }
+              }
+
+              public class SttBridge {
+                  @JavascriptInterface
+                  public void start(final String lang) {
+                      runOnUiThread(new Runnable() {
+                          @Override public void run() {
+                              try {
+                                  if (Build.VERSION.SDK_INT >= 23 &&
+                                      checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                                      requestPermissions(new String[]{ Manifest.permission.RECORD_AUDIO }, 7);
+                                      deliverStt("", false);
+                                      return;
+                                  }
+                                  if (!SpeechRecognizer.isRecognitionAvailable(MainActivity.this)) {
+                                      deliverStt("", false);
+                                      return;
+                                  }
+                                  if (recognizer == null) {
+                                      recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
+                                      recognizer.setRecognitionListener(new RecognitionListener() {
+                                          @Override public void onReadyForSpeech(Bundle p) {}
+                                          @Override public void onBeginningOfSpeech() {}
+                                          @Override public void onRmsChanged(float v) {}
+                                          @Override public void onBufferReceived(byte[] b) {}
+                                          @Override public void onEndOfSpeech() {}
+                                          @Override public void onError(int e) { deliverStt("", false); }
+                                          @Override public void onResults(Bundle results) {
+                                              String text = "";
+                                              try {
+                                                  ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                                                  if (list != null && !list.isEmpty()) text = list.get(0);
+                                              } catch (Exception ignored) {}
+                                              deliverStt(text, text != null && !text.isEmpty());
+                                          }
+                                          @Override public void onPartialResults(Bundle p) {}
+                                          @Override public void onEvent(int t, Bundle p) {}
+                                      });
+                                  }
+                                  Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                                  intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                                  if (lang != null && !lang.isEmpty()) intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, lang);
+                                  intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+                                  recognizer.startListening(intent);
+                              } catch (Exception e) {
+                                  deliverStt("", false);
+                              }
+                          }
+                      });
+                  }
+              }
+
+              private void deliverStt(final String text, final boolean ok) {
+                  final String escaped = (text == null ? "" : text).replace("\\", "\\\\").replace("'", "\\'");
+                  webView.post(new Runnable() {
+                      @Override public void run() {
+                          webView.evaluateJavascript(
+                              "(function(){ try { if (window.__onStt) window.__onStt('" + escaped + "', " + ok + "); } catch(e){} })()",
+                              null);
+                      }
+                  });
+              }
+
+              public class UpdateBridge {
+                  private void jsStatus(final String status) {
+                      webView.post(new Runnable() {
+                          @Override public void run() {
+                              webView.evaluateJavascript(
+                                  "(function(){ try { if (window.__onUpdateStatus) window.__onUpdateStatus('" + status + "'); } catch(e){} })()",
+                                  null);
+                          }
+                      });
+                  }
+                  @JavascriptInterface
+                  public void downloadAndInstall(final String url) {
+                      new Thread(new Runnable() {
+                          @Override public void run() {
+                              try {
+                                  jsStatus("downloading");
+                                  java.net.URL u = new java.net.URL(url);
+                                  java.net.HttpURLConnection c = (java.net.HttpURLConnection) u.openConnection();
+                                  c.setConnectTimeout(30000); c.setReadTimeout(60000);
+                                  c.setRequestProperty("User-Agent", "LynxoLanguageUpdater");
+                                  c.connect();
+                                  int total = c.getContentLength();
+                                  long done = 0;
+                                  java.io.File dir = new java.io.File(getExternalFilesDir(null), "updates");
+                                  if (!dir.exists()) dir.mkdirs();
+                                  java.io.File out = new java.io.File(dir, "update.apk");
+                                  java.io.InputStream in = c.getInputStream();
+                                  java.io.FileOutputStream fos = new java.io.FileOutputStream(out);
+                                  byte[] buf = new byte[8192]; int n; int lastPct = -1;
+                                  while ((n = in.read(buf)) != -1) {
+                                      fos.write(buf, 0, n); done += n;
+                                      if (total > 0) {
+                                          int pct = (int) (done * 100 / total);
+                                          if (pct != lastPct) { lastPct = pct; jsStatus("downloading:" + pct); }
+                                      }
+                                  }
+                                  fos.close(); in.close();
+                                  jsStatus("installing");
+                                  android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                                      MainActivity.this, getPackageName() + ".fileprovider", out);
+                                  Intent intent = new Intent(Intent.ACTION_VIEW);
+                                  intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                                  intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                  intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                  if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+                                      Intent s = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                                          android.net.Uri.parse("package:" + getPackageName()));
+                                      s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                      startActivity(s);
+                                      jsStatus("need_permission");
+                                      return;
+                                  }
+                                  startActivity(intent);
+                                  jsStatus("launched");
+                              } catch (Exception e) {
+                                  jsStatus("error: " + e.getMessage());
+                              }
+                          }
+                      }).start();
+                  }
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (backArmed) { backArmed = false; super.onBackPressed(); return; }
+                  final Activity self = this;
+                  try {
+                      webView.evaluateJavascript(
+                          "(function(){ try { if (window.tvBack) return window.tvBack(); } catch(e){} return 'exit'; })()",
+                          new ValueCallback<String>() {
+                              @Override
+                              public void onReceiveValue(String value) {
+                                  String v = value == null ? "exit" : value.replace("\"", "").trim();
+                                  if ("exit".equals(v)) {
+                                      backArmed = true;
+                                      self.onBackPressed();
+                                  }
+                                  /* else: JS consumed the back press */
+                              }
+                          });
+                  } catch (Exception e) {
+                      super.onBackPressed();
+                  }
+              }
+
+              @Override
+              protected void onDestroy() {
+                  try { if (tts != null) tts.shutdown(); } catch (Exception ignored) {}
+                  try { if (recognizer != null) recognizer.destroy(); } catch (Exception ignored) {}
+                  try { if (webView != null) webView.destroy(); } catch (Exception ignored) {}
+                  super.onDestroy();
+              }
+          }
+          EOF
+          echo "Scaffold complete."
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Build release APK (unsigned)
+        run: gradle :app:assembleRelease
+
+      - name: Sign release APK with the Lynxos key
+        run: |
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/lynxos-release.p12
+          "$APKSIGNER" sign --ks /tmp/lynxos-release.p12 --ks-type PKCS12 \
+            --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+            --out app/build/outputs/apk/release/app-release.apk \
+            app/build/outputs/apk/release/app-release-unsigned.apk
+          rm -f /tmp/lynxos-release.p12
+          "$APKSIGNER" verify --print-certs app/build/outputs/apk/release/app-release.apk | head -3
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lynxo-language-apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version_name }}+${{ inputs.version_code }}
+          name: Lynxo Language Learning v${{ inputs.version_name }}+${{ inputs.version_code }}
+          body: ${{ inputs.release_notes }}
+          files: app/build/outputs/apk/release/app-release.apk
