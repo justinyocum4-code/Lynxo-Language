@@ -5,31 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynxo Language Learning</title>
 <style>
-:root{ --eel:#3c3c3c; --dim:#777; --line:#e5e5e5; --green:#58cc02; --green-d:#46a302; --blue:#1cb0f6; --blue-d:#1899d6; --red:#ff4b4b; --red-d:#d33131; --gold:#f5c518; }
+:root{ --eel:#eef6fa; --dim:#9db2ba; --line:#37464f; --green:#58cc02; --green-d:#46a302; --blue:#1cb0f6; --blue-d:#1899d6; --red:#ff4b4b; --red-d:#d33131; --gold:#f5c518; }
 *{ box-sizing:border-box; }
-html,body{ margin:0; padding:0; background:#fff; color:var(--eel); font-family:Roboto,Arial,sans-serif; }
+html,body{ margin:0; padding:0; background:#131f24; color:var(--eel); font-family:Roboto,Arial,sans-serif; }
 button{ font-family:inherit; }
 :focus{ outline:3px solid var(--blue); outline-offset:2px; }
 #lynxo-language-app{ max-width:860px; margin:0 auto; padding:0 12px 110px 12px; }
-header.top{ display:flex; align-items:center; gap:8px; padding:12px 2px 8px 2px; position:sticky; top:0; background:#fff; z-index:20; border-bottom:2px solid var(--line); }
+header.top{ display:flex; align-items:center; gap:8px; padding:12px 2px 8px 2px; position:sticky; top:0; background:#131f24; z-index:20; border-bottom:2px solid var(--line); }
 header.top h1{ font-size:19px; color:var(--eel); margin:0; flex:1; line-height:1.15; font-weight:800; }
-.iconbtn{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:15px; font-weight:bold; padding:10px 12px; cursor:pointer; min-height:48px; }
-.langbtn{ background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:16px; padding:10px 14px; cursor:pointer; min-height:48px; font-weight:bold; }
+.iconbtn{ background:#202f36; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:15px; font-weight:bold; padding:10px 12px; cursor:pointer; min-height:48px; }
+.langbtn{ background:#202f36; color:var(--eel); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; font-size:16px; padding:10px 14px; cursor:pointer; min-height:48px; font-weight:bold; }
 .strip{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 12px 0; }
-.chip{ background:#fff; border:2px solid var(--line); border-radius:999px; padding:8px 12px; font-size:15px; font-weight:bold; color:var(--eel); }
+.chip{ background:#202f36; border:2px solid var(--line); border-radius:999px; padding:8px 12px; font-size:15px; font-weight:bold; color:var(--eel); }
 .chip .flame{ color:#ff9600; } .chip .star{ color:#ffc800; } .chip .gem{ color:var(--blue); }
-.card{ background:#fff; border:2px solid var(--line); border-radius:16px; padding:16px; margin:0 0 14px 0; }
+.card{ background:#202f36; border:2px solid var(--line); border-radius:16px; padding:16px; margin:0 0 14px 0; }
 .card h2{ color:var(--eel); margin:0 0 8px 0; font-size:20px; font-weight:800; }
 .card h3{ color:var(--eel); margin:0 0 6px 0; font-size:17px; font-weight:800; }
 .dim{ color:var(--dim); }
 .btn{ display:block; width:100%; background:var(--green); color:#fff; border:none; border-bottom:5px solid var(--green-d); border-radius:14px; font-size:18px; font-weight:bold; padding:15px; margin:8px 0; cursor:pointer; min-height:56px; }
 .btn:active{ transform:translateY(2px); border-bottom-width:2px; }
-.btn.secondary{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:5px solid var(--line); }
+.btn.secondary{ background:#202f36; color:var(--blue); border:2px solid var(--line); border-bottom:5px solid var(--line); }
 .btn.good{ background:var(--green); }
 .btn.bad{ background:var(--red); border-bottom-color:var(--red-d); color:#fff; }
 .btn:disabled{ opacity:.45; }
-.btn.qchoice.sel{ background:#ddf4ff; color:var(--blue-d); border-color:var(--blue); border-bottom-color:var(--blue-d); }
-.lessonbtn{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:14px; margin:6px 0; cursor:pointer; font-size:17px; font-weight:bold; min-height:56px; }
+.btn.qchoice.sel{ background:#123c52; color:#7fd4ff; border-color:var(--blue); border-bottom-color:var(--blue-d); }
+.lessonbtn{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:#202f36; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:14px; margin:6px 0; cursor:pointer; font-size:17px; font-weight:bold; min-height:56px; }
 .lessonbtn .st{ margin-left:auto; color:var(--dim); font-size:15px; white-space:nowrap; }
 .unithead{ border-radius:16px; padding:14px 16px; margin:18px 0 10px 0; color:#fff; }
 .unithead h3{ margin:0; font-size:19px; font-weight:800; color:#fff; }
@@ -37,14 +37,14 @@ header.top h1{ font-size:19px; color:var(--eel); margin:0; flex:1; line-height:1
 .pathwrap{ display:flex; flex-direction:column; align-items:center; padding:6px 0 2px 0; }
 .pnode{ width:76px; height:70px; border-radius:50%; border:none; border-bottom:7px solid rgba(0,0,0,.25); color:#fff; font-size:30px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; }
 .pnode:active{ transform:translateY(3px); border-bottom-width:3px; }
-.pnode.locked{ background:#e5e5e5 !important; border-bottom-color:#c9c9c9 !important; color:#afafaf; cursor:default; }
-.pnode .starttag{ position:absolute; top:-26px; left:50%; transform:translateX(-50%); background:#fff; color:inherit; border:2px solid var(--line); border-radius:10px; font-size:13px; font-weight:800; padding:2px 8px; letter-spacing:.5px; }
+.pnode.locked{ background:#2a3940 !important; border-bottom-color:#1c262b !important; color:#71858e; cursor:default; }
+.pnode .starttag{ position:absolute; top:-26px; left:50%; transform:translateX(-50%); background:#202f36; color:inherit; border:2px solid var(--line); border-radius:10px; font-size:13px; font-weight:800; padding:2px 8px; letter-spacing:.5px; }
 .pnode-label{ text-align:center; font-weight:bold; font-size:15px; margin-top:6px; color:var(--eel); }
 .pnode-label .sub{ display:block; font-weight:normal; color:var(--dim); font-size:13px; }
 .pulse{ animation:pulse 1.6s infinite; }
 @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(28,176,246,.45);} 70%{ box-shadow:0 0 0 14px rgba(28,176,246,0);} 100%{ box-shadow:0 0 0 0 rgba(28,176,246,0);} }
-nav.tabs{ position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:2px solid var(--line); display:flex; z-index:30; }
-nav.tabs button{ flex:1; background:none; border:none; color:#afafaf; font-size:15px; font-weight:bold; padding:12px 2px 14px 2px; cursor:pointer; min-height:60px; }
+nav.tabs{ position:fixed; left:0; right:0; bottom:0; background:#131f24; border-top:2px solid var(--line); display:flex; z-index:30; }
+nav.tabs button{ flex:1; background:none; border:none; color:#71858e; font-size:15px; font-weight:bold; padding:12px 2px 14px 2px; cursor:pointer; min-height:60px; }
 nav.tabs button.active{ color:var(--blue); }
 .progresswrap{ background:var(--line); border-radius:999px; height:16px; overflow:hidden; margin:10px 0; }
 .progressbar{ background:linear-gradient(180deg,#7ee000,var(--green)); height:100%; width:0%; transition:width .3s; border-radius:999px; }
@@ -59,20 +59,20 @@ nav.tabs button.active{ color:var(--blue); }
 .sheet .btn{ margin:4px 0 2px 0; }
 .sheet.good .btn{ background:var(--green); border-bottom-color:var(--green-d); }
 .sheet.bad .btn{ background:var(--red); border-bottom-color:var(--red-d); }
-.wordrow{ display:flex; align-items:center; gap:10px; background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; padding:12px; margin:6px 0; }
+.wordrow{ display:flex; align-items:center; gap:10px; background:#202f36; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:12px; padding:12px; margin:6px 0; }
 .wordrow .w{ flex:1; }
 .wordrow .t{ font-size:19px; font-weight:bold; }
 .wordrow .e{ color:var(--dim); font-size:15px; }
-.mini{ background:#fff; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:10px; padding:10px 12px; font-size:15px; font-weight:bold; cursor:pointer; min-height:48px; }
+.mini{ background:#202f36; color:var(--blue); border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:10px; padding:10px 12px; font-size:15px; font-weight:bold; cursor:pointer; min-height:48px; }
 .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; justify-content:center; }
-.catchip{ background:#fff; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:12px 16px; font-size:17px; font-weight:bold; cursor:pointer; min-height:52px; }
+.catchip{ background:#202f36; color:var(--eel); border:2px solid var(--line); border-bottom:5px solid var(--line); border-radius:14px; padding:12px 16px; font-size:17px; font-weight:bold; cursor:pointer; min-height:52px; }
 .catchip.active{ border-color:var(--blue); color:var(--blue); }
 .catchip.tile{ font-size:26px; min-width:58px; min-height:66px; padding:10px 8px; }
 .builtline{ min-height:44px; border:2px dashed var(--line); border-radius:12px; padding:10px; font-size:24px; font-weight:800; text-align:center; letter-spacing:2px; margin:8px 0; }
-input[type=text],input[type=password],textarea{ width:100%; background:#f7f7f7; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
-select{ width:100%; background:#f7f7f7; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
-.badge{ display:inline-block; background:#fff8d6; border:2px solid #ffc800; color:#7a5b00; border-radius:12px; padding:8px 10px; margin:4px 4px 4px 0; font-size:14px; font-weight:bold; }
-.badge.off{ color:#afafaf; border-color:var(--line); background:#fff; }
+input[type=text],input[type=password],textarea{ width:100%; background:#0f1a1f; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+select{ width:100%; background:#0f1a1f; color:var(--eel); border:2px solid var(--line); border-radius:12px; padding:14px; font-size:17px; margin:6px 0; }
+.badge{ display:inline-block; background:#2f2a08; border:2px solid #ffc800; color:#ffd94d; border-radius:12px; padding:8px 10px; margin:4px 4px 4px 0; font-size:14px; font-weight:bold; }
+.badge.off{ color:#afafaf; border-color:var(--line); background:#202f36; }
 .view{ display:none; }
 .view.active{ display:block; }
 .big{ font-size:22px; }
@@ -113,8 +113,8 @@ a{ color:var(--blue); }
 
 <script>
 "use strict";
-var APP_VERSION_NAME = "1.1.0";
-var APP_VERSION_CODE = 3;
+var APP_VERSION_NAME = "1.2.0";
+var APP_VERSION_CODE = 4;
 var REPO = "justinyocum4-code/Lynxo-Language";
 var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
 var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
@@ -367,7 +367,9 @@ function lessonList(){
     var half = Math.ceil(items.length / 2);
     out.push({ id: lessonId(c.id, 0), cat: c.id, catIdx: ci, part: 0, title: c.title + " 1", from: 0, to: half });
     if(items.length > half) out.push({ id: lessonId(c.id, 1), cat: c.id, catIdx: ci, part: 1, title: c.title + " 2", from: half, to: items.length });
-    out.push({ id: lessonId(c.id, 2), cat: c.id, catIdx: ci, part: 2, title: c.title + " Review", from: 0, to: items.length });
+    out.push({ id: lessonId(c.id, 2), cat: c.id, catIdx: ci, part: 2, title: c.title + " 3", from: 0, to: items.length });
+    out.push({ id: lessonId(c.id, 3), cat: c.id, catIdx: ci, part: 3, title: c.title + " 4", from: 0, to: items.length });
+    out.push({ id: lessonId(c.id, 4), cat: c.id, catIdx: ci, part: 4, title: c.title + " Review", from: 0, to: items.length });
   });
   return out;
 }
@@ -387,17 +389,9 @@ var LYNX_TIPS = [
 ];
 function renderLearn(){
   rollDay();
-  var w = wordOfDay();
   var lessons = lessonList();
-  var doneCount = lessons.filter(function(l){ return state.lessonsDone[l.id]; }).length;
-  var tip = LYNX_TIPS[new Date().getDate() % LYNX_TIPS.length];
   var html = "";
   html += "<div class='strip'><span class='chip'><span class='flame'>&#128293;</span> " + state.streak + "</span><span class='chip'><span class='star'>&#11088;</span> " + state.xp + " XP</span><span class='chip'><span class='gem'>&#128142;</span> Level " + level() + "</span><span class='chip'>Today " + state.todayXp + " XP</span></div>";
-  html += "<div class='card'><div class='greetcard'><div class='mascot' aria-hidden='true'>&#128006;</div><div><h2 style='margin:0'>" + timeGreeting() + "!</h2><p class='dim' style='margin:4px 0 0 0'>Lynxo the lynx says: " + esc(tip) + "</p></div></div></div>";
-  if(w) html += "<div class='card' style='border-color:#ffc800'><h2>&#128172; Word of the day</h2><p class='big'>" + esc(w.t) + (w.r ? " <span class='dim'>(" + esc(w.r) + ")</span>" : "") + "</p><p class='dim'>" + esc(w.e) + "</p><button class='btn secondary' id='wotdBtn'>Hear it</button></div>";
-  html += "<div class='card'><h2>" + esc(curLang().name) + " path</h2><p class='dim'>" + doneCount + " of " + lessons.length + " lessons done. Follow the trail — lessons unlock in order, and mistakes never lock you out.</p>";
-  if(!state.placement[state.lang]) html += "<button class='btn secondary' id='placeBtn'>Take the placement test</button>";
-  html += "</div>";
   var curCat = -1;
   var firstPendingFound = false;
   lessons.forEach(function(l, li){
@@ -421,8 +415,6 @@ function renderLearn(){
   });
   if(lessons.length) html += "</div>";
   $("view-learn").innerHTML = html;
-  if(w) $("wotdBtn").addEventListener("click", function(){ speakLang(w.t, curLang().tts, 0.85); setTimeout(function(){ say(w.e); }, 1600); });
-  var pb = $("placeBtn"); if(pb) pb.addEventListener("click", startPlacement);
   Array.prototype.forEach.call($("view-learn").querySelectorAll("[data-lesson]"), function(b){
     b.addEventListener("click", function(){
       sndTap();
@@ -473,22 +465,34 @@ function confettiBurst(){
 
 /* ---------------- Lesson engine ---------------- */
 var LSN = null;
+function saneType(it, t){
+  if(t === "spellbuild" && !spellable(it)) return "repeat";
+  if(t === "spellpick" && !(spellable(it) && spellChars(it).length >= 3)) return "chooseTarget";
+  if(t === "build" && it.t.split(/\s+/).length < 2) return spellable(it) ? "spellbuild" : "chooseTarget";
+  return t;
+}
 function buildQuestions(lesson){
-  var items = [];
   var catItems = (langData().cats || {})[lesson.cat] || [];
+  var items = [];
   for(var i = lesson.from; i < lesson.to; i++) items.push({ cat: lesson.cat, idx: i, t: catItems[i][0], e: catItems[i][1], r: catItems[i][2] || "" });
   var qs = [];
-  items.forEach(function(it, n){
+  function push(it, type){
     var pool = catItems.map(function(x, xi){ return { t: x[0], e: x[1], r: x[2] || "", idx: xi }; }).filter(function(x){ return x.idx !== it.idx; });
-    var typeCycle = ["listen", "chooseTarget", "chooseEnglish", "repeat", "build"];
-    var type;
-    if(lesson.cat === "phrases") type = typeCycle[n % typeCycle.length];
-    else if(lesson.part === 2 && spellable(it) && spellChars(it).length >= 3 && n % 3 === 2) type = "spellpick";
-    else { type = ["listen", "chooseTarget", "chooseEnglish", "repeat", "spellbuild"][n % 5]; if(type === "spellbuild" && !spellable(it)) type = "repeat"; }
-    if(type === "build" && it.t.split(/\s+/).length < 2) type = "chooseTarget";
-    qs.push({ type: type, item: it, distract: shuffle(pool).slice(0, 3) });
-  });
-  return shuffle(qs);
+    qs.push({ type: saneType(it, type), item: it, distract: shuffle(pool).slice(0, 3) });
+  }
+  if(lesson.part <= 1){
+    var cyc = ["listen", "chooseEnglish", "chooseTarget", "repeat"];
+    items.forEach(function(it, n){ push(it, cyc[n % 4]); push(it, cyc[(n + 2) % 4]); });
+  } else if(lesson.part === 2){
+    items.forEach(function(it, n){ push(it, ["chooseTarget", "chooseEnglish", "listen", "spellpick"][n % 4]); });
+    items.slice(0, 2).forEach(function(it){ push(it, "repeat"); });
+  } else if(lesson.part === 3){
+    items.forEach(function(it, n){ push(it, ["repeat", "spellbuild", "chooseTarget", "build", "spellpick"][n % 5]); });
+    items.slice(0, 2).forEach(function(it){ push(it, "chooseEnglish"); });
+  } else {
+    items.forEach(function(it, n){ push(it, ["listen", "chooseTarget", "chooseEnglish", "repeat", "spellbuild", "spellpick", "build"][n % 7]); });
+  }
+  return shuffle(qs).slice(0, 12);
 }
 /* ---------------- Spelling ---------------- */
 function spellChars(item){
