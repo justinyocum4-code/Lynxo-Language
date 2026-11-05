@@ -113,8 +113,8 @@ a{ color:var(--blue); }
 
 <script>
 "use strict";
-var APP_VERSION_NAME = "1.2.0";
-var APP_VERSION_CODE = 4;
+var APP_VERSION_NAME = "1.3.0";
+var APP_VERSION_CODE = 5;
 var REPO = "justinyocum4-code/Lynxo-Language";
 var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
 var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
@@ -232,7 +232,7 @@ window.__onStt = function(text, ok){ if(_sttCb){ var c = _sttCb; _sttCb = null; 
 /* ---------------- State ---------------- */
 var DEF_STATE = {
   lang: "es", xp: 0, lessonsDone: {}, stars: {}, mistakes: [], favs: [],
-  srs: {}, badges: [], goalMin: 5, todayXp: 0, todayDate: "",
+  srs: {}, badges: [], goalMin: 15, todayXp: 0, todayDate: "",
   streak: 0, lastDay: "", wotd: {}, settings: { rate: 0.85, reminder: false },
   groqKey: "", placement: {}, updatedAt: 0
 };
@@ -836,7 +836,16 @@ function renderFlash(){
 
 /* ---------------- Practice hub ---------------- */
 function renderPractice(){
-  var html = "<div class='card'><h2>Practice — " + esc(curLang().name) + "</h2><p class='dim'>Extra ways to practice, like Duolingo's practice hub.</p></div>";
+  var html = "<div class='card'><h2>Practice — " + esc(curLang().name) + "</h2><p class='dim'>Extra ways to practice, like Duolingo's practice hub. Every new button below is labelled in words — nothing is colour-only, and nothing here is a pass-or-fail test.</p></div>";
+  html += "<div class='card'><h3>Today's session</h3><p class='dim'>First listen to a short dialogue, then repeat and shadow five phrases, then hear a short summary. A small day still counts: the 5-minute session keeps your streak going.</p><button class='btn' id='pDaily'>Start the 15-minute session</button><button class='btn secondary' id='pDailySmall'>Start a small 5-minute session</button></div>";
+  html += "<div class='card'><h3>Graded dialogues</h3><p class='dim'>Short dialogues just above your level. Level 1 is greetings and everyday phrases, Level 2 adds food and travel, Level 3 adds travel and time. Hear any line again, slowly or at normal speed.</p><button class='btn' id='pGraded1'>Level 1 dialogue</button><button class='btn secondary' id='pGraded2'>Level 2 dialogue</button><button class='btn secondary' id='pGraded3'>Level 3 dialogue</button></div>";
+  html += "<div class='card'><h3>Sentence review</h3><p class='dim'>Review whole sentences, not just single words. Sentences you miss come back in Mistakes review, like words do.</p><button class='btn' id='pSentences'>Start sentence review</button></div>";
+  html += "<div class='card'><h3>Shadowing</h3><p class='dim'>Listen, then say the phrase along with the voice. Slow, normal, and a little fast are all here — start slow, there is no rush.</p><button class='btn' id='pShadow'>Start shadowing</button></div>";
+  html += "<div class='card'><h3>Useful chunks</h3><p class='dim'>Phrases you will actually use, grouped by pattern — I would like, I need, Where is, How much, and more.</p><button class='btn' id='pChunks'>Open useful chunks</button></div>";
+  html += "<div class='card'><h3>Grammar in examples</h3><p class='dim'>Tiny grammar notes inside real examples, never a grammar drill first.</p><button class='btn' id='pGrammar'>Open grammar notes</button></div>";
+  html += "<div class='card'><h3>Guided voice roleplay</h3><p class='dim'>Speak your lines in a café, meeting someone new, or asking for help. The coach listens, gives a gentle correction in the moment, and ends with a spoken summary of at most 3 things to practice again. Nothing here blocks you — you can always continue.</p><button class='btn' id='pRoleplay'>Start guided voice roleplay</button></div>";
+  html += "<div class='card'><h3>Voice AI coach</h3><p class='dim'>Talk out loud with the AI coach. If you added your Groq key in Settings, it replies in " + esc(curLang().name) + " with an English translation, and gently corrects mistakes. Without a key, use guided voice roleplay above — it always works.</p><button class='btn' id='pVoiceCoach'>Start voice AI coach</button></div>";
+  html += "<div class='card'><h3>Voice commands</h3><p class='dim'>Say slower, repeat, stop, or what does that mean. Tap the button, then speak in English.</p><button class='btn' id='pVoiceCmd'>Listen for a voice command</button></div>";
   html += "<div class='card'><h3>Hands-free audio lesson</h3><p class='dim'>Audio only, made for walks. The app says a word in English, then in " + esc(curLang().name) + " twice — once slow, once normal. Screen can stay off.</p><button class='btn' id='pAudio'>Start audio lesson</button><button class='btn secondary' id='pAudioStop'>Stop audio</button></div>";
   html += "<div class='card'><h3>&#9999;&#65038; Spelling practice</h3><p class='dim'>Learn to spell the words, not just hear them. The app spells each word out loud, then you build it from letter tiles that speak when you touch them.</p><button class='btn' id='pSpell'>Start spelling practice</button></div>";
   html += "<div class='card'><h3>Mistakes review</h3><p class='dim'>" + state.mistakes.length + " saved mistake" + (state.mistakes.length === 1 ? "" : "s") + " in " + esc(curLang().name) + ".</p><button class='btn' id='pMistakes'>Review mistakes</button></div>";
@@ -845,6 +854,18 @@ function renderPractice(){
   html += "<div class='card'><h3>Translator</h3><p class='dim'>Type or say something in English and hear it in " + esc(curLang().name) + ". Uses the internet.</p><button class='btn' id='pTrans'>Open translator</button></div>";
   html += "<div class='card'><h3>Conversation practice</h3><p class='dim'>Guided roleplay conversations — no key needed. If you add your own Groq key in Settings, this also unlocks free AI chat.</p><button class='btn' id='pConvo'>Start a conversation</button></div>";
   $("view-practice").innerHTML = html;
+  $("pDaily").addEventListener("click", function(){ startDailySession(15); });
+  $("pDailySmall").addEventListener("click", function(){ startDailySession(5); });
+  $("pGraded1").addEventListener("click", function(){ startGradedDialogue(1); });
+  $("pGraded2").addEventListener("click", function(){ startGradedDialogue(2); });
+  $("pGraded3").addEventListener("click", function(){ startGradedDialogue(3); });
+  $("pSentences").addEventListener("click", startSentenceReview);
+  $("pShadow").addEventListener("click", startShadowing);
+  $("pChunks").addEventListener("click", renderChunks);
+  $("pGrammar").addEventListener("click", renderGrammar);
+  $("pRoleplay").addEventListener("click", startGuidedRoleplay);
+  $("pVoiceCoach").addEventListener("click", startVoiceCoach);
+  $("pVoiceCmd").addEventListener("click", startVoiceCommand);
   $("pAudio").addEventListener("click", startAudioLesson);
   $("pAudioStop").addEventListener("click", stopAudioLesson);
   $("pSpell").addEventListener("click", function(){ startSpelling(); });
@@ -1005,6 +1026,377 @@ function renderConvo(){
   });
 }
 
+/* ---------------- What's new in 1.3: graded dialogues, sentence review, shadowing, chunks, grammar in examples, guided voice roleplay, voice AI coach, voice commands, daily session ---------------- */
+var LASTSPOKEN = { t: "", e: "" };
+function gradedDialogueLines(level){
+  var base = [
+    ["Ana", "greet", 0], ["Ben", "greet", 0], ["Ana", "phrases", 0],
+    ["Ben", "phrases", 3], ["Ana", "phrases", 6], ["Ben", "phrases", 8]
+  ];
+  if(level >= 2) base = base.concat([
+    ["Ana", "phrases", 4], ["Ben", "phrases", 5], ["Ana", "food", 2],
+    ["Ben", "food", 0], ["Ana", "travel", 1], ["Ben", "travel", 5]
+  ]);
+  if(level >= 3) base = base.concat([
+    ["Ana", "travel", 0], ["Ben", "travel", 2], ["Ana", "time", 0],
+    ["Ben", "time", 1], ["Ana", "phrases", 7], ["Ben", "phrases", 2]
+  ]);
+  var out = [];
+  base.forEach(function(L){
+    var it = getItem(L[1], L[2]);
+    if(it) out.push({ who: L[0], cat: L[1], idx: L[2], t: it[0], e: it[1], r: it[2] || "" });
+  });
+  return out;
+}
+function startGradedDialogue(level){
+  var lines = gradedDialogueLines(level);
+  if(lines.length < 4){ say("Not enough phrases for a dialogue yet."); return; }
+  var v = $("view-lesson");
+  VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
+  var html = "<button class='btn secondary' id='gQuit'>Back to Practice</button><div class='card'><h2>Graded dialogue, level " + level + "</h2><p class='dim'>Listen first. Then hear any line again, slowly or at normal speed. Nothing here is a test.</p></div>";
+  lines.forEach(function(l, i){
+    html += "<div class='card'><p><b>" + esc(l.who) + ":</b> " + esc(l.t) + (l.r ? " (" + esc(l.r) + ")" : "") + "<br><span class='dim'>" + esc(l.e) + "</span></p>" +
+      "<button class='btn secondary' data-ghear='" + i + "'>Hear this line</button>" +
+      "<button class='btn secondary' data-gslow='" + i + "'>Hear it slowly</button></div>";
+  });
+  html += "<button class='btn' id='gPlay'>Play the whole dialogue</button><button class='btn secondary' id='gQuiz'>Answer questions about it</button>";
+  v.innerHTML = html;
+  $("gQuit").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call(v.querySelectorAll("[data-ghear]"), function(b){
+    b.addEventListener("click", function(){
+      var l = lines[parseInt(b.getAttribute("data-ghear"), 10)];
+      LASTSPOKEN = { t: l.t, e: l.e };
+      speakLang(l.t, curLang().tts, state.settings.rate || 1);
+    });
+  });
+  Array.prototype.forEach.call(v.querySelectorAll("[data-gslow]"), function(b){
+    b.addEventListener("click", function(){
+      var l = lines[parseInt(b.getAttribute("data-gslow"), 10)];
+      LASTSPOKEN = { t: l.t, e: l.e };
+      speakLang(l.t, curLang().tts, 0.55);
+    });
+  });
+  $("gPlay").addEventListener("click", function(){
+    stopAudioLesson();
+    var delay = 300;
+    lines.forEach(function(l){
+      _audioTimers.push(setTimeout(function(){ LASTSPOKEN = { t: l.t, e: l.e }; speakLang(l.t, curLang().tts, 0.9, true); }, delay));
+      delay += Math.max(1800, l.t.length * 130);
+    });
+  });
+  $("gQuiz").addEventListener("click", function(){
+    var phraseLines = lines.filter(function(l){ return l.cat === "phrases"; }).slice(0, 2);
+    if(phraseLines.length < 2){ say("Play the dialogue first, then try the questions."); return; }
+    var phrases = (langData().cats || {}).phrases || [];
+    var qs = phraseLines.map(function(l){
+      return { type: "chooseEnglish", item: { cat: "phrases", idx: l.idx, t: l.t, e: l.e, r: l.r }, distract: shuffle(phrases.map(function(y, yi){ return { t: y[0], e: y[1], r: y[2] || "", idx: yi }; }).filter(function(y){ return y.idx !== l.idx; })).slice(0, 3) };
+    });
+    LSN = { lesson: { id: "graded-dialogue", title: "Dialogue questions", cat: "phrases" }, qs: qs, i: 0, correct: 0, mode: "review", answered: false };
+    renderQuestion();
+    say("Two questions about the dialogue.");
+  });
+  say("Graded dialogue, level " + level + ". " + lines.length + " lines. Listen first.");
+}
+function startSentenceReview(){
+  var phrases = ((langData().cats || {}).phrases || []).map(function(it, i){ return { idx: i, t: it[0], e: it[1], r: it[2] || "" }; });
+  if(phrases.length < 4){ say("Not enough sentences yet."); return; }
+  var pool = shuffle(phrases).slice(0, 8);
+  var qs = pool.map(function(it, n){
+    var type = ["listen", "chooseEnglish", "repeat"][n % 3];
+    return { type: type, item: { cat: "phrases", idx: it.idx, t: it.t, e: it.e, r: it.r }, distract: shuffle(phrases.filter(function(x){ return x.idx !== it.idx; })).slice(0, 3) };
+  });
+  LSN = { lesson: { id: "sentences", title: "Sentence review", cat: "phrases" }, qs: qs, i: 0, correct: 0, mode: "sentences", answered: false };
+  show("lesson");
+  say("Sentence review. " + qs.length + " whole sentences. Listen, choose, and repeat them out loud.");
+  renderQuestion();
+}
+var SHAD = null;
+function startShadowing(){
+  var phrases = ((langData().cats || {}).phrases || []).map(function(it, i){ return { idx: i, t: it[0], e: it[1], r: it[2] || "" }; });
+  if(!phrases.length){ say("No phrases to shadow yet."); return; }
+  SHAD = { items: shuffle(phrases).slice(0, 8), i: 0 };
+  renderShadow();
+}
+function renderShadow(){
+  if(!SHAD || SHAD.i >= SHAD.items.length){ SHAD = null; say("Shadowing done. Good work."); show("practice"); return; }
+  var it = SHAD.items[SHAD.i];
+  var v = $("view-lesson");
+  VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
+  v.innerHTML = "<button class='btn secondary' id='shQuit'>Back to Practice</button><div class='card center'><p class='dim'>Shadowing " + (SHAD.i + 1) + " of " + SHAD.items.length + "</p>" +
+    "<p class='qword'>" + esc(it.t) + "</p>" + (it.r ? "<p class='qrom'>" + esc(it.r) + "</p>" : "") + "<p class='dim'>" + esc(it.e) + "</p>" +
+    "<button class='btn' id='shSlow'>Play it slowly</button>" +
+    "<button class='btn secondary' id='shNormal'>Play it normally</button>" +
+    "<button class='btn secondary' id='shFast'>Play it a little fast</button>" +
+    "<button class='btn secondary' id='shTogether'>Shadow with me</button>" +
+    "<button class='btn' id='shNext'>Next phrase</button></div>";
+  $("shQuit").addEventListener("click", function(){ SHAD = null; show("practice"); });
+  var play = function(rate){
+    LASTSPOKEN = { t: it.t, e: it.e };
+    speakLang(it.t, curLang().tts, rate);
+  };
+  $("shSlow").addEventListener("click", function(){ play(0.55); });
+  $("shNormal").addEventListener("click", function(){ play(0.9); });
+  $("shFast").addEventListener("click", function(){ play(1.15); });
+  $("shTogether").addEventListener("click", function(){
+    say("Listen first.");
+    play(0.9);
+    setTimeout(function(){ say("Now say it along with me."); play(0.85); }, Math.max(2200, it.t.length * 140));
+  });
+  $("shNext").addEventListener("click", function(){ SHAD.i++; saveState(); renderShadow(); });
+  play(0.85);
+}
+function renderChunks(){
+  var phrases = ((langData().cats || {}).phrases || []).map(function(it, i){ return { idx: i, t: it[0], e: it[1], r: it[2] || "" }; });
+  var groups = [
+    { pat: "I would like", note: "A polite way to ask for something." },
+    { pat: "I need", note: "Use this when you need help or something." },
+    { pat: "Where is", note: "Use this to ask where something is." },
+    { pat: "How much", note: "Use this to ask the price." },
+    { pat: "My name is", note: "Use this to introduce yourself." },
+    { pat: "I don't understand", note: "Use this when you need someone to slow down or repeat." },
+    { pat: "I am from", note: "Use this to say where you are from." }
+  ];
+  var html = "<button class='btn secondary' id='chBack'>Back to Practice</button><div class='card'><h2>Useful chunks — " + esc(curLang().name) + "</h2><p class='dim'>Learn these as whole phrases, not word by word. That is how people really speak.</p></div>";
+  groups.forEach(function(g){
+    var matches = phrases.filter(function(p){ return p.e.indexOf(g.pat) >= 0; });
+    if(!matches.length) return;
+    html += "<div class='card'><h3>" + esc(g.pat) + "</h3><p class='dim'>" + esc(g.note) + "</p>";
+    matches.forEach(function(p){
+      html += "<div class='wordrow'><div class='w'><div class='t'>" + esc(p.t) + "</div><div class='e'>" + esc(p.e) + "</div></div>" +
+        "<button class='mini' data-chsay='" + p.idx + "'>Hear</button><button class='mini' data-chslow='" + p.idx + "'>Slow</button></div>";
+    });
+    html += "</div>";
+  });
+  $("view-practice").innerHTML = html;
+  $("chBack").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-chsay]"), function(b){
+    b.addEventListener("click", function(){
+      var it = getItem("phrases", parseInt(b.getAttribute("data-chsay"), 10));
+      if(it){ LASTSPOKEN = { t: it[0], e: it[1] }; speakLang(it[0], curLang().tts, 1); }
+    });
+  });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-chslow]"), function(b){
+    b.addEventListener("click", function(){
+      var it = getItem("phrases", parseInt(b.getAttribute("data-chslow"), 10));
+      if(it){ LASTSPOKEN = { t: it[0], e: it[1] }; speakLang(it[0], curLang().tts, 0.5); }
+    });
+  });
+  say("Useful chunks. Learn these as whole phrases.");
+}
+function renderGrammar(){
+  var notes = [
+    { title: "I would like", cat: "phrases", idx: 6, note: "I would like is polite. It is softer than I want, and it works for ordering food, asking for help, and asking for something in a shop." },
+    { title: "I need", cat: "phrases", idx: 7, note: "I need says you need something. Keep it short: I need help, then name what you need." },
+    { title: "Where is", cat: "phrases", idx: 4, note: "Where is starts a question about a place. Say where is, then the place you are looking for." },
+    { title: "How much", cat: "phrases", idx: 5, note: "How much starts a question about price. Say how much, then the thing you want to buy." },
+    { title: "My name is", cat: "phrases", idx: 0, note: "My name is introduces you. Say it, then your name, and you have started a conversation." },
+    { title: "I am from", cat: "phrases", idx: 1, note: "I am from says where you come from. Say I am from, then your place." }
+  ];
+  var html = "<button class='btn secondary' id='grBack'>Back to Practice</button><div class='card'><h2>Grammar in examples — " + esc(curLang().name) + "</h2><p class='dim'>One small note at a time, inside a real sentence you can use.</p></div>";
+  notes.forEach(function(n, i){
+    var it = getItem(n.cat, n.idx);
+    if(!it) return;
+    html += "<div class='card'><h3>" + esc(n.title) + "</h3><p class='dim'>" + esc(n.note) + "</p>" +
+      "<p><b>" + esc(it[0]) + "</b><br><span class='dim'>" + esc(it[1]) + "</span></p>" +
+      "<button class='btn secondary' data-grhear='" + i + "'>Hear the example</button>" +
+      "<button class='btn secondary' data-grnote='" + i + "'>Hear the grammar note</button></div>";
+  });
+  $("view-practice").innerHTML = html;
+  $("grBack").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-grhear]"), function(b){
+    b.addEventListener("click", function(){
+      var n = notes[parseInt(b.getAttribute("data-grhear"), 10)];
+      var it = getItem(n.cat, n.idx);
+      if(it){ LASTSPOKEN = { t: it[0], e: it[1] }; speakLang(it[0], curLang().tts, 0.9); }
+    });
+  });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-grnote]"), function(b){
+    b.addEventListener("click", function(){
+      var n = notes[parseInt(b.getAttribute("data-grnote"), 10)];
+      say(n.note);
+    });
+  });
+  say("Grammar in examples. One small note at a time.");
+}
+var COACH = null;
+function startGuidedRoleplay(){
+  var scenarios = [
+    { title: "At a café", lines: [["Waiter", "phrases", 5], ["You", "phrases", 6], ["Waiter", "greet", 3], ["You", "phrases", 8]] },
+    { title: "Meeting someone new", lines: [["Ana", "greet", 0], ["You", "phrases", 0], ["Ana", "phrases", 3], ["You", "greet", 9]] },
+    { title: "Asking for help", lines: [["You", "phrases", 7], ["Ben", "phrases", 3], ["You", "phrases", 4], ["Ben", "greet", 2]] }
+  ];
+  var html = "<button class='btn secondary' id='crBack'>Back to Practice</button><div class='card'><h2>Guided voice roleplay</h2><p class='dim'>Pick a scene. Speak the lines marked You. The coach gives a gentle correction and a short spoken summary at the end.</p></div>";
+  scenarios.forEach(function(s, si){ html += "<button class='lessonbtn' data-cr='" + si + "'><span>" + esc(s.title) + "</span><span class='st'>Start</span></button>"; });
+  $("view-practice").innerHTML = html;
+  $("crBack").addEventListener("click", function(){ show("practice"); });
+  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-cr]"), function(b){
+    b.addEventListener("click", function(){
+      COACH = { scenario: scenarios[parseInt(b.getAttribute("data-cr"), 10)], step: 0, errors: [] };
+      renderCoachStep();
+    });
+  });
+  say("Guided voice roleplay. Pick a scene.");
+}
+function renderCoachStep(){
+  if(!COACH) return;
+  if(COACH.step >= COACH.scenario.lines.length){
+    var summary = COACH.errors.length ?
+      "Roleplay finished. Good work. A few to practice again: " + COACH.errors.slice(0, 3).map(function(e){ return e.e; }).join(". ") + "." :
+      "Roleplay finished. You said every line. Well done.";
+    var v = $("view-lesson");
+    VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
+    v.innerHTML = "<div class='card center'><h2>Roleplay complete</h2><p class='big'>" + esc(summary) + "</p>" +
+      (COACH.errors.length ? COACH.errors.slice(0, 3).map(function(e){ return "<p><b>" + esc(e.t) + "</b><br><span class='dim'>" + esc(e.e) + "</span></p>"; }).join("") : "") +
+      "<button class='btn' id='crDone'>Back to Practice</button></div>";
+    $("crDone").addEventListener("click", function(){ COACH = null; addXp(10); saveState(); show("practice"); });
+    say(summary);
+    return;
+  }
+  var L = COACH.scenario.lines[COACH.step];
+  var it = getItem(L[1], L[2]);
+  if(!it){ COACH.step++; renderCoachStep(); return; }
+  var v = $("view-lesson");
+  VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
+  var isYou = L[0] === "You";
+  var html = "<button class='btn secondary' id='crQuit'>Quit roleplay</button><div class='card center'><p class='dim'>" + esc(COACH.scenario.title) + " &bull; Line " + (COACH.step + 1) + " of " + COACH.scenario.lines.length + "</p>" +
+    "<p><b>" + esc(L[0]) + " says:</b></p><p class='qword'>" + esc(it[0]) + "</p>" + (it[2] ? "<p class='qrom'>" + esc(it[2]) + "</p>" : "") + "<p class='dim'>" + esc(it[1]) + "</p>" +
+    "<button class='btn' id='crPlay'>Hear this line</button>" +
+    "<button class='btn secondary' id='crSlow'>Hear it slowly</button>";
+  if(isYou){
+    html += "<button class='btn secondary' id='crMic'>Say it (microphone)</button>" +
+      "<button class='btn secondary' id='crSaid'>I said it</button>" +
+      "<p class='dim center' id='crHeard'></p>";
+  } else {
+    html += "<button class='btn' id='crNext'>Next line</button>";
+  }
+  html += "</div>";
+  v.innerHTML = html;
+  $("crQuit").addEventListener("click", function(){ COACH = null; show("practice"); });
+  $("crPlay").addEventListener("click", function(){ LASTSPOKEN = { t: it[0], e: it[1] }; speakLang(it[0], curLang().tts, 0.9); });
+  $("crSlow").addEventListener("click", function(){ LASTSPOKEN = { t: it[0], e: it[1] }; speakLang(it[0], curLang().tts, 0.55); });
+  var nextBtn = $("crNext");
+  if(nextBtn) nextBtn.addEventListener("click", function(){ COACH.step++; renderCoachStep(); });
+  var saidBtn = $("crSaid");
+  if(saidBtn) saidBtn.addEventListener("click", function(){ COACH.step++; renderCoachStep(); });
+  var micBtn = $("crMic");
+  if(micBtn) micBtn.addEventListener("click", function(){
+    say("Listening. Say it now.");
+    listenLang(curLang().tts, function(text, ok){
+      var heard = $("crHeard");
+      if(!ok || !text){
+        if(heard) heard.textContent = "I couldn't hear that. Tap 'I said it' to continue, or try the microphone again.";
+        say("I couldn't hear that clearly. Try again, or tap I said it to continue.");
+        return;
+      }
+      if(heard) heard.textContent = "You said: " + text;
+      var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, " ").trim(); };
+      var good = norm(text).indexOf(norm(it[0])) >= 0 || norm(it[0]).indexOf(norm(text)) >= 0;
+      if(good){
+        say("Good. That sounded right.");
+        setTimeout(function(){ if(COACH){ COACH.step++; renderCoachStep(); } }, 1200);
+      } else {
+        if(COACH.errors.length < 3 && COACH.errors.filter(function(e){ return e.t === it[0]; }).length === 0) COACH.errors.push({ t: it[0], e: it[1] });
+        say("Good try. Listen once more, then tap I said it or Next to continue. This is only practice, not a test.");
+        var card = v.querySelector(".card");
+        var already = card ? Array.prototype.filter.call(card.querySelectorAll("button"), function(b){ return b.textContent === "Continue"; }).length : 1;
+        if(card && !already){
+          var cont = document.createElement("button");
+          cont.className = "btn"; cont.textContent = "Continue";
+          cont.addEventListener("click", function(){ if(COACH){ COACH.step++; renderCoachStep(); } });
+          card.appendChild(cont);
+        }
+      }
+    });
+  });
+  LASTSPOKEN = { t: it[0], e: it[1] };
+  speakLang(it[0], curLang().tts, 0.9);
+}
+function startVoiceCoach(){
+  var v = $("view-practice");
+  if(!state.groqKey){
+    v.innerHTML = "<button class='btn secondary' id='vcBack'>Back to Practice</button><div class='card'><h2>Voice AI coach</h2><p class='dim'>The voice AI coach needs your Groq key in Settings. It is stored only on this device. Until then, guided voice roleplay works with no key at all.</p><button class='btn' id='vcRole'>Use guided voice roleplay instead</button></div>";
+    $("vcBack").addEventListener("click", function(){ show("practice"); });
+    $("vcRole").addEventListener("click", startGuidedRoleplay);
+    say("Voice AI coach needs your Groq key in Settings. Guided voice roleplay works with no key.");
+    return;
+  }
+  v.innerHTML = "<button class='btn secondary' id='vcBack'>Back to Practice</button><div class='card'><h2>Voice AI coach</h2><p class='dim'>Tap Talk, then speak in " + esc(curLang().name) + " or English. The coach replies in " + esc(curLang().name) + " with an English translation, and gently corrects mistakes. This is practice, not a test, and the coach can make mistakes too — trust the lessons over any single reply.</p>" +
+    "<button class='btn' id='vcTalk'>Talk to the coach</button>" +
+    "<button class='btn secondary' id='vcHear' style='display:none'>Hear the last reply again</button>" +
+    "<p class='dim' id='vcOut'></p></div>";
+  $("vcBack").addEventListener("click", function(){ show("practice"); });
+  var lastReply = "";
+  var hearBtn = $("vcHear");
+  hearBtn.addEventListener("click", function(){ if(lastReply) speakLang(lastReply.split("(")[0], curLang().tts, 0.9); });
+  $("vcTalk").addEventListener("click", function(){
+    say("Listening. Speak now.");
+    listenLang(curLang().tts, function(text, ok){
+      if(!ok || !text){ say("I couldn't hear that. Try again."); return; }
+      var out = $("vcOut"); if(out) out.textContent = "Thinking…";
+      fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + state.groqKey },
+        body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [
+          { role: "system", content: "You are a friendly " + curLang().name + " conversation tutor for a beginner. Reply mostly in " + curLang().name + ", keep replies to 1-2 short sentences, then give the English translation in parentheses. If the user says something incorrect, add one gentle correction in English after the translation. Never invent a word or rule you are unsure about — say you are not sure instead." },
+          { role: "user", content: text }
+        ] })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        var txt = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+        if(txt){
+          lastReply = txt;
+          if(out) out.textContent = txt;
+          hearBtn.style.display = "block";
+          LASTSPOKEN = { t: txt.split("(")[0], e: txt };
+          speakLang(txt.split("(")[0], curLang().tts, 0.9);
+          setTimeout(function(){ say("The English translation is on screen."); }, 2000);
+        } else if(out) out.textContent = "No reply. Check your key in Settings.";
+      }).catch(function(){ var o2 = $("vcOut"); if(o2) o2.textContent = "AI chat failed. Check your connection and key."; });
+    });
+  });
+  say("Voice AI coach. Tap Talk, then speak.");
+}
+function startVoiceCommand(){
+  say("Listening for a voice command. Say slower, repeat, stop, or what does that mean.");
+  listenLang("en-US", function(text, ok){
+    if(!ok || !text){ say("I couldn't hear that. Try again."); return; }
+    var t = text.toLowerCase();
+    if(t.indexOf("slower") >= 0 || t.indexOf("slow") >= 0){
+      state.settings.rate = 0.7; saveState();
+      say("Speech set to slow.");
+    } else if(t.indexOf("repeat") >= 0 && LASTSPOKEN.t){
+      speakLang(LASTSPOKEN.t, curLang().tts, state.settings.rate || 1);
+    } else if(t.indexOf("stop") >= 0){
+      stopAudioLesson();
+      say("Stopped.");
+    } else if((t.indexOf("mean") >= 0) && LASTSPOKEN.e){
+      say("It means: " + LASTSPOKEN.e);
+    } else {
+      say("I heard: " + text + ". Try slower, repeat, stop, or what does that mean.");
+    }
+  });
+}
+function startDailySession(minutes){
+  stopAudioLesson();
+  var isSmall = minutes <= 5;
+  var lines = gradedDialogueLines(1);
+  var phrases = shuffle(((langData().cats || {}).phrases || []).map(function(it, i){ return { t: it[0], e: it[1] }; })).slice(0, 5);
+  say((isSmall ? "Small session. Five minutes. " : "Today's session. Fifteen minutes. ") + "First, listen to a short dialogue. Then, repeat and shadow five phrases. Then we finish with a short summary.");
+  var delay = 3000;
+  lines.forEach(function(l){
+    _audioTimers.push(setTimeout(function(){ LASTSPOKEN = { t: l.t, e: l.e }; speakLang(l.t, curLang().tts, 0.9, true); }, delay));
+    delay += Math.max(2000, l.t.length * 140);
+  });
+  phrases.forEach(function(p, n){
+    _audioTimers.push(setTimeout(function(){ say("Phrase " + (n + 1) + ". In English: " + p.e); }, delay)); delay += 2600;
+    _audioTimers.push(setTimeout(function(){ LASTSPOKEN = { t: p.t, e: p.e }; speakLang(p.t, curLang().tts, 0.55, true); }, delay)); delay += 3200;
+    _audioTimers.push(setTimeout(function(){ speakLang(p.t, curLang().tts, 1, true); }, delay)); delay += 3400;
+  });
+  _audioTimers.push(setTimeout(function(){
+    say("Session complete. You listened to a dialogue and shadowed five phrases. That is real practice, even on a small day.");
+    addXp(isSmall ? 5 : 15); saveState();
+  }, delay));
+}
+
 /* ---------------- Progress ---------------- */
 function renderProgress(){
   rollDay();
@@ -1016,7 +1408,7 @@ function renderProgress(){
     "<p>Lessons completed: <b>" + doneCount + "</b></p>" +
     "<p>Words in training: <b>" + Object.keys(state.srs).length + "</b></p>" +
     "<p>Saved phrases and words: <b>" + state.favs.length + "</b></p>" +
-    "<p>Daily goal: " + state.goalMin + " minutes (about " + goalXp + " XP). Today: " + state.todayXp + " XP" + (state.todayXp >= goalXp ? " — goal reached, nice work." : ".") + "</p></div>";
+    "<p>Daily goal: " + state.goalMin + " minutes (about " + goalXp + " XP). Today: " + state.todayXp + " XP" + (state.todayXp >= goalXp ? " — goal reached, nice work." : ".") + "</p><p class='dim'>A small day still counts. A 5-minute session keeps your streak going.</p></div>";
   html += "<div class='card'><h2>Badges</h2>";
   BADGES.forEach(function(b){ var has = state.badges.indexOf(b.id) >= 0; html += "<span class='badge" + (has ? "" : " off") + "'>" + esc(b.name) + (has ? "" : " (locked)") + "</span>"; });
   html += "</div>";
@@ -1120,7 +1512,7 @@ function renderSettings(){
     "<button class='btn' id='saveSet'>Save settings</button></div>" +
     "<div class='card'><h2>Updates</h2><p class='dim'>Version " + APP_VERSION_NAME + " (build " + APP_VERSION_CODE + "). Check for a newer version and install it right here — no uninstalling, ever.</p>" +
     "<button class='btn' id='updBtn'>Check for updates</button><p class='dim' id='updStatus'></p></div>" +
-    "<div class='card'><h2>About</h2><p class='dim'>Lynxo Language Learning. Learn languages by ear: every lesson is spoken, with big simple controls. Modeled on Duolingo's flow, built blind-first in gold and black.</p></div>";
+    "<div class='card'><h2>About</h2><p class='dim'>Lynxo Language Learning. Learn languages by ear: every lesson is spoken, with big simple controls. Version 1.3 adds graded dialogues, sentence review, shadowing, useful chunks, grammar in examples, guided voice roleplay, a voice AI coach, voice commands, and a daily session shape. Modeled on Duolingo's flow, built blind-first in gold and black.</p></div>";
   $("view-settings").innerHTML = html;
   $("setBack").addEventListener("click", function(){ show("learn"); });
   $("saveSet").addEventListener("click", function(){
