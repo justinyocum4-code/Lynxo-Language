@@ -113,8 +113,8 @@ a{ color:var(--blue); }
 
 <script>
 "use strict";
-var APP_VERSION_NAME = "1.3.0";
-var APP_VERSION_CODE = 5;
+var APP_VERSION_NAME = "1.3.1";
+var APP_VERSION_CODE = 6;
 var REPO = "justinyocum4-code/Lynxo-Language";
 var SUPABASE_URL = "https://klykzghndlrfwwxwaczm.supabase.co";
 var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWt6Z2huZGxyZnd3eHdhY3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MzUxNDUsImV4cCI6MjEwNTExMTE0NX0.02AcmkbA_wjLN5XOfwuisJjck2TijjqH66bX5ddVV0Q";
@@ -214,20 +214,29 @@ function speakLang(text, lang, rate, queue){
   playWebQueue();
 }
 var _sttCb = null;
+var _sttTimer = null;
+function clearSttTimer(){ if(_sttTimer){ clearTimeout(_sttTimer); _sttTimer = null; } }
 function listenLang(lang, cb){
+  clearSttTimer();
   _sttCb = cb;
+  /* If the native listener never answers (permission dialog dismissed,
+     recognizer unavailable), do not hang forever — report it after 20 seconds. */
+  _sttTimer = setTimeout(function(){
+    if(_sttCb){ var c = _sttCb; _sttCb = null; c("", false); }
+  }, 20000);
   try { if(window.LynxosStt && LynxosStt.start) { LynxosStt.start(lang || curLang().tts); return; } } catch(e){}
   try {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(SR){ var rec = new SR(); rec.lang = lang || curLang().tts; rec.interimResults = false;
-      rec.onresult = function(ev){ var t = ev.results[0][0].transcript || ""; if(_sttCb){ var c = _sttCb; _sttCb = null; c(t, true); } };
-      rec.onerror = function(){ if(_sttCb){ var c = _sttCb; _sttCb = null; c("", false); } };
+      rec.onresult = function(ev){ clearSttTimer(); var t = ev.results[0][0].transcript || ""; if(_sttCb){ var c = _sttCb; _sttCb = null; c(t, true); } };
+      rec.onerror = function(){ clearSttTimer(); if(_sttCb){ var c = _sttCb; _sttCb = null; c("", false); } };
       rec.start(); return;
     }
   } catch(e){}
+  clearSttTimer();
   if(_sttCb){ var c2 = _sttCb; _sttCb = null; c2("", false); }
 }
-window.__onStt = function(text, ok){ if(_sttCb){ var c = _sttCb; _sttCb = null; c(text || "", !!ok); } };
+window.__onStt = function(text, ok){ clearSttTimer(); if(_sttCb){ var c = _sttCb; _sttCb = null; c(text || "", !!ok); } };
 
 /* ---------------- State ---------------- */
 var DEF_STATE = {
@@ -852,7 +861,7 @@ function renderPractice(){
   html += "<div class='card'><h3>Stories and dialogues</h3><p class='dim'>Short spoken conversations built from your phrases, with questions after.</p><button class='btn' id='pStory'>Play a dialogue</button></div>";
   html += "<div class='card'><h3>Phrasebook</h3><p class='dim'>Everyday phrases with favorites. Your saved phrases come first.</p><button class='btn' id='pPhrases'>Open phrasebook</button></div>";
   html += "<div class='card'><h3>Translator</h3><p class='dim'>Type or say something in English and hear it in " + esc(curLang().name) + ". Uses the internet.</p><button class='btn' id='pTrans'>Open translator</button></div>";
-  html += "<div class='card'><h3>Conversation practice</h3><p class='dim'>Guided roleplay conversations — no key needed. If you add your own Groq key in Settings, this also unlocks free AI chat.</p><button class='btn' id='pConvo'>Start a conversation</button></div>";
+  html += "<div class='card'><h3>Conversation practice</h3><p class='dim'>Talk back to the other person — guided voice roleplay. Tap a scene, listen to the other person, then tap Talk and speak back. No key needed.</p><button class='btn' id='pConvo'>Start talking</button></div>";
   $("view-practice").innerHTML = html;
   $("pDaily").addEventListener("click", function(){ startDailySession(15); });
   $("pDailySmall").addEventListener("click", function(){ startDailySession(5); });
@@ -979,53 +988,11 @@ function renderTranslator(){
   $("tHear").addEventListener("click", function(){ if(lastOut) speakLang(lastOut, curLang().tts, 0.85); });
 }
 function renderConvo(){
-  var scenarios = [
-    { title: "At a café", lines: [["Waiter", "phrases", 5], ["You", "phrases", 6], ["Waiter", "greet", 3], ["You", "phrases", 8]] },
-    { title: "Meeting someone new", lines: [["Ana", "greet", 0], ["You", "phrases", 0], ["Ana", "phrases", 3], ["You", "greet", 9]] },
-    { title: "Asking for help", lines: [["You", "phrases", 7], ["Ben", "phrases", 3], ["You", "phrases", 4], ["Ben", "greet", 2]] }
-  ];
-  var html = "<button class='btn secondary' id='cBack'>Back to Practice</button><div class='card'><h2>Conversation practice</h2><p class='dim'>Guided roleplays in " + esc(curLang().name) + ". Each line is spoken; your lines are marked You.</p></div>";
-  scenarios.forEach(function(s, si){ html += "<button class='lessonbtn' data-sc='" + si + "'><span>" + esc(s.title) + "</span><span class='st'>Play</span></button>"; });
-  if(state.groqKey){
-    html += "<div class='card'><h3>Free AI chat</h3><label for='aiIn'>Say something in " + esc(curLang().name) + " (or English)</label><input type='text' id='aiIn' placeholder='Type a message'><button class='btn' id='aiSend'>Send</button><p id='aiOut' class='dim'></p><button class='btn secondary' id='aiHear' style='display:none'>Hear the reply</button></div>";
-  } else {
-    html += "<div class='card'><h3>Free AI chat</h3><p class='dim'>Locked. Add your own Groq key in Settings to unlock open-ended AI conversation. The guided roleplays above always work, no key needed.</p></div>";
-  }
-  $("view-practice").innerHTML = html;
-  $("cBack").addEventListener("click", function(){ show("practice"); });
-  Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-sc]"), function(b){
-    b.addEventListener("click", function(){
-      var s = scenarios[parseInt(b.getAttribute("data-sc"), 10)];
-      stopAudioLesson();
-      say(s.title + ". Listen.");
-      var delay = 600;
-      s.lines.forEach(function(L){
-        var it = getItem(L[1], L[2]); if(!it) return;
-        _audioTimers.push(setTimeout(function(){ say(L[0] + " says:"); }, delay)); delay += 1200;
-        _audioTimers.push(setTimeout(function(){ speakLang(it[0], curLang().tts, 0.9, true); }, delay)); delay += Math.max(2000, it[0].length * 140);
-      });
-      _audioTimers.push(setTimeout(function(){ say("Conversation finished."); addXp(5); saveState(); }, delay));
-    });
-  });
-  var send = $("aiSend");
-  if(send) send.addEventListener("click", function(){
-    var msg = $("aiIn").value.trim(); if(!msg) return;
-    var out = $("aiOut"); out.textContent = "Thinking…";
-    fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + state.groqKey },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [
-        { role: "system", content: "You are a friendly " + curLang().name + " conversation tutor for a beginner. Reply mostly in " + curLang().name + ", keep replies to 1-2 short sentences, then give the English translation in parentheses." },
-        { role: "user", content: msg }
-      ] })
-    }).then(function(r){ return r.json(); }).then(function(d){
-      var txt = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-      if(txt){ out.textContent = txt; $("aiHear").style.display = "block"; $("aiHear").onclick = function(){ speakLang(txt.split("(")[0], curLang().tts, 0.9); }; say("Reply received."); }
-      else { out.textContent = "No reply. Check your key in Settings."; }
-    }).catch(function(){ out.textContent = "AI chat failed. Check your connection and key."; });
-  });
+  /* The old listen-only roleplay is gone on purpose: it played every line
+     to you and gave you no way to talk back. Conversation practice now
+     opens the guided voice roleplay, where you talk back on your turns. */
+  startGuidedRoleplay();
 }
-
 /* ---------------- What's new in 1.3: graded dialogues, sentence review, shadowing, chunks, grammar in examples, guided voice roleplay, voice AI coach, voice commands, daily session ---------------- */
 var LASTSPOKEN = { t: "", e: "" };
 function gradedDialogueLines(level){
@@ -1225,10 +1192,12 @@ function startGuidedRoleplay(){
     { title: "Meeting someone new", lines: [["Ana", "greet", 0], ["You", "phrases", 0], ["Ana", "phrases", 3], ["You", "greet", 9]] },
     { title: "Asking for help", lines: [["You", "phrases", 7], ["Ben", "phrases", 3], ["You", "phrases", 4], ["Ben", "greet", 2]] }
   ];
-  var html = "<button class='btn secondary' id='crBack'>Back to Practice</button><div class='card'><h2>Guided voice roleplay</h2><p class='dim'>Pick a scene. Speak the lines marked You. The coach gives a gentle correction and a short spoken summary at the end.</p></div>";
+  var html = "<button class='btn secondary' id='crBack'>Back to Practice</button><div class='card'><h2>Guided voice roleplay</h2><p class='dim'>Pick a scene. The other person speaks first, then it is your turn to talk back. The app tells you what it heard, then the other person replies. The coach gives a short spoken summary at the end.</p></div>";
   scenarios.forEach(function(s, si){ html += "<button class='lessonbtn' data-cr='" + si + "'><span>" + esc(s.title) + "</span><span class='st'>Start</span></button>"; });
+  html += "<button class='btn secondary' id='crFree'>Free talk with the AI coach instead</button>";
   $("view-practice").innerHTML = html;
   $("crBack").addEventListener("click", function(){ show("practice"); });
+  $("crFree").addEventListener("click", startVoiceCoach);
   Array.prototype.forEach.call($("view-practice").querySelectorAll("[data-cr]"), function(b){
     b.addEventListener("click", function(){
       COACH = { scenario: scenarios[parseInt(b.getAttribute("data-cr"), 10)], step: 0, errors: [] };
@@ -1242,11 +1211,11 @@ function renderCoachStep(){
   if(COACH.step >= COACH.scenario.lines.length){
     var summary = COACH.errors.length ?
       "Roleplay finished. Good work. A few to practice again: " + COACH.errors.slice(0, 3).map(function(e){ return e.e; }).join(". ") + "." :
-      "Roleplay finished. You said every line. Well done.";
+      "Roleplay finished. You talked back on every turn. Well done.";
     var v = $("view-lesson");
     VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
     v.innerHTML = "<div class='card center'><h2>Roleplay complete</h2><p class='big'>" + esc(summary) + "</p>" +
-      (COACH.errors.length ? COACH.errors.slice(0, 3).map(function(e){ return "<p><b>" + esc(e.t) + "</b><br><span class='dim'>" + esc(e.e) + "</span></p>"; }).join("") : "") +
+      (COACH.errors.length ? COACH.errors.slice(0, 3).map(function(e){ return "<p><b>" + esc(e.t) + "</b><br><span class='dim'>" + esc(e.e) + "</span></p><p class='dim'>Try it again in shadowing, slowly, then say it in the next roleplay.</p>"; }).join("") : "") +
       "<button class='btn' id='crDone'>Back to Practice</button></div>";
     $("crDone").addEventListener("click", function(){ COACH = null; addXp(10); saveState(); show("practice"); });
     say(summary);
@@ -1258,16 +1227,20 @@ function renderCoachStep(){
   var v = $("view-lesson");
   VIEWS.forEach(function(x){ var el = $("view-" + x); if(el) el.classList.toggle("active", x === "lesson"); });
   var isYou = L[0] === "You";
-  var html = "<button class='btn secondary' id='crQuit'>Quit roleplay</button><div class='card center'><p class='dim'>" + esc(COACH.scenario.title) + " &bull; Line " + (COACH.step + 1) + " of " + COACH.scenario.lines.length + "</p>" +
-    "<p><b>" + esc(L[0]) + " says:</b></p><p class='qword'>" + esc(it[0]) + "</p>" + (it[2] ? "<p class='qrom'>" + esc(it[2]) + "</p>" : "") + "<p class='dim'>" + esc(it[1]) + "</p>" +
-    "<button class='btn' id='crPlay'>Hear this line</button>" +
-    "<button class='btn secondary' id='crSlow'>Hear it slowly</button>";
+  var html = "<button class='btn secondary' id='crQuit'>Quit roleplay</button><div class='card center'><p class='dim'>" + esc(COACH.scenario.title) + " &bull; Turn " + (COACH.step + 1) + " of " + COACH.scenario.lines.length + "</p>";
   if(isYou){
-    html += "<button class='btn secondary' id='crMic'>Say it (microphone)</button>" +
+    html += "<p><b>Your turn. Talk back.</b></p>" +
+      "<p class='dim'>Hint — try saying this, or say it in your own words:</p><p class='qword'>" + esc(it[0]) + "</p>" + (it[2] ? "<p class='qrom'>" + esc(it[2]) + "</p>" : "") + "<p class='dim'>" + esc(it[1]) + "</p>" +
+      "<button class='btn' id='crTalk'>Talk — tap, then speak</button>" +
+      "<button class='btn secondary' id='crPlay'>Hear the hint</button>" +
+      "<button class='btn secondary' id='crSlow'>Hear the hint slowly</button>" +
       "<button class='btn secondary' id='crSaid'>I said it</button>" +
-      "<p class='dim center' id='crHeard'></p>";
+      "<p class='dim center' id='crHeard' role='status'></p>";
   } else {
-    html += "<button class='btn' id='crNext'>Next line</button>";
+    html += "<p><b>" + esc(L[0]) + " says:</b></p><p class='qword'>" + esc(it[0]) + "</p>" + (it[2] ? "<p class='qrom'>" + esc(it[2]) + "</p>" : "") + "<p class='dim'>" + esc(it[1]) + "</p>" +
+      "<button class='btn' id='crPlay'>Hear this line again</button>" +
+      "<button class='btn secondary' id='crSlow'>Hear it slowly</button>" +
+      "<button class='btn' id='crNext'>Talk back to " + esc(L[0]) + "</button>";
   }
   html += "</div>";
   v.innerHTML = html;
@@ -1278,38 +1251,37 @@ function renderCoachStep(){
   if(nextBtn) nextBtn.addEventListener("click", function(){ COACH.step++; renderCoachStep(); });
   var saidBtn = $("crSaid");
   if(saidBtn) saidBtn.addEventListener("click", function(){ COACH.step++; renderCoachStep(); });
-  var micBtn = $("crMic");
-  if(micBtn) micBtn.addEventListener("click", function(){
-    say("Listening. Say it now.");
+  var talkBtn = $("crTalk");
+  if(talkBtn) talkBtn.addEventListener("click", function(){
+    say("Listening. Speak now.");
     listenLang(curLang().tts, function(text, ok){
       var heard = $("crHeard");
       if(!ok || !text){
-        if(heard) heard.textContent = "I couldn't hear that. Tap 'I said it' to continue, or try the microphone again.";
-        say("I couldn't hear that clearly. Try again, or tap I said it to continue.");
+        if(heard) heard.textContent = "I couldn't hear that. If a microphone permission just appeared, allow it, then tap Talk again.";
+        say("I couldn't hear that. If a microphone permission just appeared, allow it, then tap Talk again.");
         return;
       }
       if(heard) heard.textContent = "You said: " + text;
+      say("You said: " + text);
       var norm = function(s){ return s.toLowerCase().replace(/[?.!,¿¡…]/g, "").replace(/\s+/g, " ").trim(); };
-      var good = norm(text).indexOf(norm(it[0])) >= 0 || norm(it[0]).indexOf(norm(text)) >= 0;
-      if(good){
-        say("Good. That sounded right.");
-        setTimeout(function(){ if(COACH){ COACH.step++; renderCoachStep(); } }, 1200);
-      } else {
+      var good = norm(text).indexOf(norm(it[0])) >= 0 || norm(it[0]).indexOf(norm(text)) >= 0 || norm(text).split(" ").some(function(w){ return w.length > 2 && norm(it[0]).indexOf(w) >= 0; });
+      if(!good){
         if(COACH.errors.length < 3 && COACH.errors.filter(function(e){ return e.t === it[0]; }).length === 0) COACH.errors.push({ t: it[0], e: it[1] });
-        say("Good try. Listen once more, then tap I said it or Next to continue. This is only practice, not a test.");
-        var card = v.querySelector(".card");
-        var already = card ? Array.prototype.filter.call(card.querySelectorAll("button"), function(b){ return b.textContent === "Continue"; }).length : 1;
-        if(card && !already){
-          var cont = document.createElement("button");
-          cont.className = "btn"; cont.textContent = "Continue";
-          cont.addEventListener("click", function(){ if(COACH){ COACH.step++; renderCoachStep(); } });
-          card.appendChild(cont);
-        }
+        say("Good try. I heard you, and I saved that phrase to practice again at the end. Now hear the reply.");
+      } else {
+        say("Good. That sounded right. Now hear the reply.");
       }
+      setTimeout(function(){ if(COACH){ COACH.step++; renderCoachStep(); } }, 1800);
     });
   });
   LASTSPOKEN = { t: it[0], e: it[1] };
-  speakLang(it[0], curLang().tts, 0.9);
+  if(!isYou){
+    /* The other person speaks first, so you can answer them. Your own
+       line is only a hint and is never read out as if it were your turn. */
+    speakLang(it[0], curLang().tts, 0.9);
+  } else {
+    say("Your turn. Tap Talk, then speak back.");
+  }
 }
 function startVoiceCoach(){
   var v = $("view-practice");
@@ -1348,7 +1320,8 @@ function startVoiceCoach(){
           hearBtn.style.display = "block";
           LASTSPOKEN = { t: txt.split("(")[0], e: txt };
           speakLang(txt.split("(")[0], curLang().tts, 0.9);
-          setTimeout(function(){ say("The English translation is on screen."); }, 2000);
+          var trans = txt.indexOf("(") >= 0 ? txt.split("(").slice(1).join("(").replace(/\)\s*$/, "") : "";
+          if(trans) setTimeout(function(){ say("In English: " + trans); }, 2500);
         } else if(out) out.textContent = "No reply. Check your key in Settings.";
       }).catch(function(){ var o2 = $("vcOut"); if(o2) o2.textContent = "AI chat failed. Check your connection and key."; });
     });
@@ -1512,7 +1485,7 @@ function renderSettings(){
     "<button class='btn' id='saveSet'>Save settings</button></div>" +
     "<div class='card'><h2>Updates</h2><p class='dim'>Version " + APP_VERSION_NAME + " (build " + APP_VERSION_CODE + "). Check for a newer version and install it right here — no uninstalling, ever.</p>" +
     "<button class='btn' id='updBtn'>Check for updates</button><p class='dim' id='updStatus'></p></div>" +
-    "<div class='card'><h2>About</h2><p class='dim'>Lynxo Language Learning. Learn languages by ear: every lesson is spoken, with big simple controls. Version 1.3 adds graded dialogues, sentence review, shadowing, useful chunks, grammar in examples, guided voice roleplay, a voice AI coach, voice commands, and a daily session shape. Modeled on Duolingo's flow, built blind-first in gold and black.</p></div>";
+    "<div class='card'><h2>About</h2><p class='dim'>Lynxo Language Learning. Learn languages by ear: every lesson is spoken, with big simple controls. Version 1.3.1 fixes roleplay so you talk back: the other person speaks, you tap Talk and speak back, the app tells you what it heard, then the other person replies. Modeled on Duolingo's flow, built blind-first in gold and black.</p></div>";
   $("view-settings").innerHTML = html;
   $("setBack").addEventListener("click", function(){ show("learn"); });
   $("saveSet").addEventListener("click", function(){
